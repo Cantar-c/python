@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Videos API</title>
+    <script src="js/jquery.js"></script>
+</head>
+<body>
+<h1>测试视频数据</h1>
+<div id="testOutput"></div>
+
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '/videos',
+            method: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                console.log('获取到的数据:', data);
+                $('#testOutput').text(JSON.stringify(data, null, 2));
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('获取数据失败:', textStatus, errorThrown);
+                $('#testOutput').text('无法获取数据');
+            }
+        });
+    });
+</script>
+</body>
+</html>
