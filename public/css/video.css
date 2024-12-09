@@ -1,0 +1,97 @@
+
+.video_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    column-gap: 15px;
+    row-gap: 40px;
+}
+
+
+@media (max-width: 950px) {
+    .video_grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 951px) and (max-width: 1249px) {
+    .video_grid {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+
+@media (min-width: 1250px) {
+    .video_grid {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+}
+
+
+.cover_image {
+    position: relative;
+}
+
+.image {
+    width: 100%;
+    cursor: pointer;
+}
+
+.video {
+}
+
+.uper_img {
+    width: 100%;
+    border-radius: 50%;
+    vertical-align: top;
+    cursor: pointer;
+}
+
+.video_time {
+    font-family: Roboto, Arial;
+    font-size: 15px;
+    font-weight: 500;
+    background-color: rgba(46, 45, 45, 0.719);
+    color: aliceblue;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    z-index: 1;
+    padding: 3px 6px 3px 6px;
+    /*padding四个方向，上右下左，顺时针。
+        如果只有两个值，那么是竖直方向 水平方向*/
+    border-radius: 15%;
+}
+
+.video_info {
+    vertical-align: top;
+    margin-left: 10px;
+
+}
+
+.vertical_second {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 40px 1fr;
+}
+
+.uper_div {
+
+}
+
+.video_title_p {
+    margin-top: 0;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 18px;
+    margin-bottom: 10px;
+}
+
+.video_author_info, .video_statis {
+    font-size: 12px;
+    color: rgb(96, 96, 96);
+}
+
+.video_author_info {
+    margin-bottom: 4px;
+}            
+
