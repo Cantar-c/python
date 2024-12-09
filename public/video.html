@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>视频浏览</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/video.css">
+    <link rel="stylesheet" href="css/head.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+
+    <script src="js/jquery.js"></script>
+    <script src="js/jump.js"></script>
+</head>
+
+<body>
+<header class="title">
+    <div class="left_element">
+        <img class="burger_icon" src="icon/hamburger-menu.svg" alt="菜单">
+        <a href="/">
+            <img class="logo" src="icon/logo.png" alt="Logo">
+        </a>
+    </div>
+    <div class="center_element">
+        <input class="search" type="text" placeholder="搜索" style="margin-right: 20px;">
+        <div class="search_button_div">
+            <button class="search_button">
+                <img class="search_button_icon" src="icon/search.svg" alt="搜索">
+                <div class="search_button_text">search</div>
+            </button>
+        </div>
+    </div>
+    <div class="right_element">
+        <img class="upload_video_icon" src="icon/upload.svg" alt="上传视频">
+        <img class="nine_squares_icon" src="icon/youtube-apps.svg" alt="应用">
+        <div class="notice_box">
+            <img class="notice" src="icon/notifications.svg" alt="通知">
+            <div class="notice_number">
+                9+
+            </div>
+        </div>
+        <img class="avatar" src="img/carebears.jpg" alt="头像">
+    </div>
+</header>
+
+<nav class="sidebar">
+    <div id="index_site" class="sidebar_Icons">
+        <div>
+            <img src="icon/home.svg" alt="主页">
+        </div>
+        <div>
+            主页
+        </div>
+    </div>
+    <div id="official_site" class="sidebar_Icons">
+        <div>
+            <img src="icon/指南.svg" alt="官网">
+        </div>
+        <div>
+            官网
+        </div>
+    </div>
+    <div id='library' class="sidebar_Icons">
+        <div>
+            <img src="icon/图书馆.svg" alt="图书馆">
+        </div>
+        <div>
+            图书馆
+        </div>
+    </div>
+    <div id='selfInfo' class="sidebar_Icons">
+        <div>
+            <img src="icon/原稿.svg" alt="我的合集">
+        </div>
+        <div>
+            我的合集
+        </div>
+    </div>
+</nav>
+
+<main>
+    <div id="video_container">
+    </div>
+
+    <!-- Error Message -->
+    <div id="error-message" style="display: none; text-align: center;">
+        <h2>此视频无法再播放</h2>
+        <img src="/video_img/default-image.png" alt="不可播放视频" />
+    </div>
+</main>
+
+<script>
+    // Get video name from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const videoName = urlParams.get('name');
+
+    const videoContainer = document.getElementById('video_container');
+    const errorMessage = document.getElementById('error-message');
+
+    if (videoName) {
+        // Check if the video exists
+        const videoPath = videoName; // The path where videos are stored
+
+        const videoElement = document.createElement('video');
+        videoElement.setAttribute('controls', 'true');
+        videoElement.setAttribute('width', '80%');
+
+        // Try loading the video
+        videoElement.src = videoPath;
+
+        videoElement.onerror = () => {
+            // If video loading fails, show error message
+            videoContainer.style.display = 'none';
+            errorMessage.style.display = 'block';
+        };
+
+        // If video is found, show it
+        videoElement.onloadstart = () => {
+            videoContainer.style.display = 'block';
+            errorMessage.style.display = 'none';
+        };
+
+        // Append video player to the container
+        videoContainer.appendChild(videoElement);
+    } else {
+        // If no video name is provided, show error
+        videoContainer.style.display = 'none';
+        errorMessage.style.display = 'block';
+    }
+</script>
+
+</body>
+</html>

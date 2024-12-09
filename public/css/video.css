@@ -6,6 +6,12 @@
     row-gap: 40px;
 }
 
+#video_container {
+    position: relative;
+    margin-left: 2%;
+    height: 0;
+}
+
 
 @media (max-width: 950px) {
     .video_grid {

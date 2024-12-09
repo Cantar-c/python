@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Youtube</title>
+    <title>BaiyunTube</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="css/video.css">
     <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/video.css">
     <link rel="stylesheet" href="css/head.css">
     <link rel="stylesheet" href="css/sidebar.css">
-    <!-- 使用最新的 jQuery 版本 -->
+
     <script src="js/jquery.js"></script>
     <script src="js/jump.js"></script>
+    <script src="js/video_list.js"></script>
 </head>
 
 <body>
 <header class="title">
     <div class="left_element">
         <img class="burger_icon" src="icon/hamburger-menu.svg" alt="菜单">
-        <a href="#">
+        <a href="/">
             <img class="logo" src="icon/logo.png" alt="Logo">
         </a>
     </div>
@@ -31,9 +32,6 @@
                 <div class="search_button_text">search</div>
             </button>
         </div>
-        <button class="voice_search_button">
-            <img class="voice_search_button_icon" src="icon/voice-search-icon.svg" alt="语音搜索">
-        </button>
     </div>
     <div class="right_element">
         <img class="upload_video_icon" src="icon/upload.svg" alt="上传视频">
@@ -84,103 +82,8 @@
 </nav>
 
 <main>
-    <section class="video_grid" id="videoGrid">
-        <!-- 动态视频内容将插入到这里 -->
-    </section>
+    <section class="video_grid" id="videoGrid"></section>
 </main>
-
-<!-- 动态渲染视频的脚本 -->
-<script>
-    $(document).ready(function () {
-        console.log('页面加载完成，开始请求视频数据');
-
-        // 请求后端 API 获取视频数据
-        $.ajax({
-            url: '/videos', // 后端视频数据接口
-            method: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                console.log('成功获取视频数据:', data);
-
-                // 检查数据是否为数组
-                if (Array.isArray(data)) {
-                    // 遍历每个视频对象并生成相应的 HTML
-                    data.forEach(function (video, index) {
-                        console.log(`渲染视频 ${index + 1}:`, video);
-
-                        // 创建视频容器
-                        var videoDiv = $('<div>', {class: 'video'});
-
-                        // 创建封面图部分
-                        var coverImageDiv = $('<div>', {class: 'cover_image'});
-                        var image = $('<img>', {
-                            class: 'image',
-                            src: video.image,
-                            alt: video.video_name
-                        }).on('error', function () {
-                            console.error(`图片加载失败: ${video.image}`);
-                            $(this).attr('src', '/video_images/default-image.png'); // 替换为默认图片路径
-                        });
-                        var videoTimeDiv = $('<div>', {class: 'video_time', text: video.video_time});
-
-                        coverImageDiv.append(image).append(videoTimeDiv);
-
-                        // 创建视频信息部分
-                        var verticalSecondDiv = $('<div>', {class: 'vertical_second'});
-
-                        // 上部图片（作者头像）
-                        var uperDiv = $('<div>', {class: 'uper_div'});
-                        var uperImg = $('<img>', {
-                            class: 'uper_img',
-                            src: video.uper_img,
-                            alt: video.video_author_info
-                        }).on('error', function () {
-                            console.error(`作者头像加载失败: ${video.uper_img}`);
-                            $(this).attr('src', '/uper_img/default-avatar.png'); // 替换为默认头像路径
-                        });
-                        uperDiv.append(uperImg);
-
-                        // 视频详细信息
-                        var videoInfoDiv = $('<div>', {class: 'video_info'});
-                        var videoTitleP = $('<p>', {
-                            class: 'video_title_p',
-                            text: video.video_name
-                        });
-                        var videoAuthorInfoP = $('<p>', {
-                            class: 'video_author_info',
-                            text: video.video_author_info
-                        });
-                        var videoStatisP = $('<p>', {
-                            class: 'video_statis',
-                            text: video.video_statis
-                        });
-
-                        videoInfoDiv.append(videoTitleP)
-                            .append(videoAuthorInfoP)
-                            .append(videoStatisP);
-
-                        verticalSecondDiv.append(uperDiv).append(videoInfoDiv);
-
-                        // 组合所有部分
-                        videoDiv.append(coverImageDiv).append(verticalSecondDiv);
-
-                        // 将视频容器添加到视频网格中
-                        $('#videoGrid').append(videoDiv);
-
-                        console.log(`视频 ${index + 1} 渲染完成`);
-                    });
-                } else {
-                    console.error('返回的数据格式不正确:', data);
-                    $('#videoGrid').append('<p>视频数据加载失败。</p>');
-                }
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.error('获取视频数据出错:', textStatus, errorThrown);
-                $('#videoGrid').append('<p>无法加载视频数据。</p>');
-            }
-        });
-    });
-</script>
 
 </body>
 </html>

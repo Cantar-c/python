@@ -94,6 +94,8 @@ function getVideoThumbnail(videoPath, thumbnailPath) {
 
 // 获取视频文件路径
 app.get('/videos', async (req, res) => {
+    const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
+
     fs.readdir(videoFolder, async (err, files) => {
         if (err) {
             console.error('读取文件夹出错:', err);
@@ -116,11 +118,10 @@ app.get('/videos', async (req, res) => {
             const authorName = baseName.split('_')[0] || '未知作者';
 
             // 提取视频名称（下划线后面的部分）
-            const videoName = baseName.includes('_') ? baseName.split('_')[1] : '未知视频名称';
+            const videoName = baseName.includes('_') ? baseName.split('_').slice(1).join('_') : '未知视频名称';
 
             const thumbnailPath = path.join(imageFolder, `${baseName}.png`);
             const videoCreationTime = getFileCreationTime(videoPath);
-
             const realCreateTime = GetRealCreateTime(videoPath);
 
             try {
@@ -131,7 +132,7 @@ app.get('/videos', async (req, res) => {
                     await getVideoThumbnail(videoPath, thumbnailPath);
                 }
 
-                results.push({
+                const videoData = {
                     video_path: `/video/${file}`,
                     video_name: videoName,
                     image: `/video_img/${baseName}.png`,
@@ -140,7 +141,18 @@ app.get('/videos', async (req, res) => {
                     video_author_info: authorName,
                     video_statis: videoCreationTime,
                     real_create_time: realCreateTime
-                });
+                };
+
+                // 如果存在搜索参数，则进行过滤
+                if (searchQuery) {
+                    const nameMatch = videoName.toLowerCase().includes(searchQuery);
+                    const authorMatch = authorName.toLowerCase().includes(searchQuery);
+                    if (nameMatch || authorMatch) {
+                        results.push(videoData);
+                    }
+                } else {
+                    results.push(videoData);
+                }
             } catch (error) {
                 console.error('处理视频时出错:', error);
             }
