@@ -49,6 +49,11 @@ function getFileCreationTime(filePath) {
     return createdAt.from(now); // 返回类似 "1 months ago"
 }
 
+function GetRealCreateTime(filePath) {
+    const stats = fs.statSync(filePath);
+    return stats.birthtime;
+}
+
 // 工具函数：解析视频时长
 function getVideoDuration(filePath) {
     return new Promise((resolve, reject) => {
@@ -116,6 +121,8 @@ app.get('/videos', async (req, res) => {
             const thumbnailPath = path.join(imageFolder, `${baseName}.png`);
             const videoCreationTime = getFileCreationTime(videoPath);
 
+            const realCreateTime = GetRealCreateTime(videoPath);
+
             try {
                 const videoTime = await getVideoDuration(videoPath);
 
@@ -131,12 +138,16 @@ app.get('/videos', async (req, res) => {
                     video_time: videoTime,
                     uper_img: `/uper_img/${authorName}.png`,
                     video_author_info: authorName,
-                    video_statis: videoCreationTime
+                    video_statis: videoCreationTime,
+                    real_create_time: realCreateTime
                 });
             } catch (error) {
                 console.error('处理视频时出错:', error);
             }
         }
+
+        // 按照 video_statis（创建时间）进行排序，新的在前面，旧的在后面
+        results.sort((a, b) => new Date(b.real_create_time) - new Date(a.real_create_time));
 
         res.json(results);
     });

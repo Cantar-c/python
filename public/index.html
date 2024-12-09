@@ -91,7 +91,7 @@
 
 <!-- 动态渲染视频的脚本 -->
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         console.log('页面加载完成，开始请求视频数据');
 
         // 请求后端 API 获取视频数据
@@ -99,49 +99,49 @@
             url: '/videos', // 后端视频数据接口
             method: 'GET',
             dataType: 'json',
-            success: function(data) {
+            success: function (data) {
                 console.log('成功获取视频数据:', data);
 
                 // 检查数据是否为数组
                 if (Array.isArray(data)) {
                     // 遍历每个视频对象并生成相应的 HTML
-                    data.forEach(function(video, index) {
+                    data.forEach(function (video, index) {
                         console.log(`渲染视频 ${index + 1}:`, video);
 
                         // 创建视频容器
-                        var videoDiv = $('<div>', { class: 'video' });
+                        var videoDiv = $('<div>', {class: 'video'});
 
                         // 创建封面图部分
-                        var coverImageDiv = $('<div>', { class: 'cover_image' });
+                        var coverImageDiv = $('<div>', {class: 'cover_image'});
                         var image = $('<img>', {
                             class: 'image',
                             src: video.image,
                             alt: video.video_name
-                        }).on('error', function() {
+                        }).on('error', function () {
                             console.error(`图片加载失败: ${video.image}`);
                             $(this).attr('src', '/video_images/default-image.png'); // 替换为默认图片路径
                         });
-                        var videoTimeDiv = $('<div>', { class: 'video_time', text: video.video_time });
+                        var videoTimeDiv = $('<div>', {class: 'video_time', text: video.video_time});
 
                         coverImageDiv.append(image).append(videoTimeDiv);
 
                         // 创建视频信息部分
-                        var verticalSecondDiv = $('<div>', { class: 'vertical_second' });
+                        var verticalSecondDiv = $('<div>', {class: 'vertical_second'});
 
                         // 上部图片（作者头像）
-                        var uperDiv = $('<div>', { class: 'uper_div' });
+                        var uperDiv = $('<div>', {class: 'uper_div'});
                         var uperImg = $('<img>', {
                             class: 'uper_img',
                             src: video.uper_img,
                             alt: video.video_author_info
-                        }).on('error', function() {
+                        }).on('error', function () {
                             console.error(`作者头像加载失败: ${video.uper_img}`);
                             $(this).attr('src', '/uper_img/default-avatar.png'); // 替换为默认头像路径
                         });
                         uperDiv.append(uperImg);
 
                         // 视频详细信息
-                        var videoInfoDiv = $('<div>', { class: 'video_info' });
+                        var videoInfoDiv = $('<div>', {class: 'video_info'});
                         var videoTitleP = $('<p>', {
                             class: 'video_title_p',
                             text: video.video_name
@@ -156,8 +156,8 @@
                         });
 
                         videoInfoDiv.append(videoTitleP)
-                                    .append(videoAuthorInfoP)
-                                    .append(videoStatisP);
+                            .append(videoAuthorInfoP)
+                            .append(videoStatisP);
 
                         verticalSecondDiv.append(uperDiv).append(videoInfoDiv);
 
@@ -174,7 +174,7 @@
                     $('#videoGrid').append('<p>视频数据加载失败。</p>');
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 console.error('获取视频数据出错:', textStatus, errorThrown);
                 $('#videoGrid').append('<p>无法加载视频数据。</p>');
             }
