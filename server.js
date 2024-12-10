@@ -48,14 +48,12 @@ db.run(`CREATE TABLE IF NOT EXISTS users
 const app = express();
 app.use(bodyParser.json());
 app.use(session({
-    secret: 'bitMWT5zxHb6Gp6w',
-    resave: false,
-    saveUninitialized: true,
-    cookie: {secure: false}
+    secret: 'bitMWT5zxHb6Gp6w', resave: false, saveUninitialized: true, cookie: {secure: false}
 }));
 
 // 定义视频文件夹路径
 const videoFolder = path.join(__dirname, 'videos');
+const videoInfoFolder = path.join(__dirname, 'video_info'); // 存储视频信息的文件夹
 const imageFolder = path.join(__dirname, 'video_images'); // 存储第一帧图片的文件夹
 const uperImageFolder = path.join(__dirname, 'uper_images'); // 存储作者头像的文件夹
 
@@ -120,151 +118,6 @@ function getVideoThumbnail(videoPath, thumbnailPath) {
 app.get('/videos', async (req, res) => {
     const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
 
-    // fack_jsondata = [
-    //     {
-    //         "video_path": "/video/飞云传媒_广东白云学院飞云传媒【第十六届校园十大歌手决赛】宣传片.mp4",
-    //         "video_name": "广东白云学院飞云传媒【第十六届校园十大歌手决赛】宣传片",
-    //         "image": "/video_img/飞云传媒_广东白云学院飞云传媒【第十六届校园十大歌手决赛】宣传片.png",
-    //         "video_time": "06:44",
-    //         "uper_img": "/uper_img/飞云传媒.png",
-    //         "video_author_info": "飞云传媒",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:07.161Z"
-    //     },
-    //     {
-    //         "video_path": "/video/欧哥_美丽的大学-广东白云学院.mp4",
-    //         "video_name": "美丽的大学-广东白云学院",
-    //         "image": "/video_img/欧哥_美丽的大学-广东白云学院.png",
-    //         "video_time": "01:38",
-    //         "uper_img": "/uper_img/欧哥.png",
-    //         "video_author_info": "欧哥",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:07.107Z"
-    //     },
-    //     {
-    //         "video_path": "/video/是77鸭_军训浅放个炮.mp4",
-    //         "video_name": "军训浅放个炮",
-    //         "image": "/video_img/是77鸭_军训浅放个炮.png",
-    //         "video_time": "00:37",
-    //         "uper_img": "/uper_img/是77鸭.png",
-    //         "video_author_info": "是77鸭",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:07.089Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院龙狮团_广东白云学院一直致力于广东醒狮的传承和发展.mp4",
-    //         "video_name": "广东白云学院一直致力于广东醒狮的传承和发展",
-    //         "image": "/video_img/广东白云学院龙狮团_广东白云学院一直致力于广东醒狮的传承和发展.png",
-    //         "video_time": "00:48",
-    //         "uper_img": "/uper_img/广东白云学院龙狮团.png",
-    //         "video_author_info": "广东白云学院龙狮团",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:07.060Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院_时尚校园，都市学府——广东白云学院2024宣传片首发！.mp4",
-    //         "video_name": "时尚校园，都市学府——广东白云学院2024宣传片首发！",
-    //         "image": "/video_img/广东白云学院_时尚校园，都市学府——广东白云学院2024宣传片首发！.png",
-    //         "video_time": "02:16",
-    //         "uper_img": "/uper_img/广东白云学院.png",
-    //         "video_author_info": "广东白云学院",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:07.003Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院_微电影《内 卷 王》.mp4",
-    //         "video_name": "微电影《内 卷 王》",
-    //         "image": "/video_img/广东白云学院_微电影《内 卷 王》.png",
-    //         "video_time": "05:18",
-    //         "uper_img": "/uper_img/广东白云学院.png",
-    //         "video_author_info": "广东白云学院",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.890Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院_广东白云学院西校区食堂、超市焕然升级！.mp4",
-    //         "video_name": "广东白云学院西校区食堂、超市焕然升级！",
-    //         "image": "/video_img/广东白云学院_广东白云学院西校区食堂、超市焕然升级！.png",
-    //         "video_time": "01:26",
-    //         "uper_img": "/uper_img/广东白云学院.png",
-    //         "video_author_info": "广东白云学院",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.849Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院_广东白云学院宣传片.mp4",
-    //         "video_name": "广东白云学院宣传片",
-    //         "image": "/video_img/广东白云学院_广东白云学院宣传片.png",
-    //         "video_time": "02:46",
-    //         "uper_img": "/uper_img/广东白云学院.png",
-    //         "video_author_info": "广东白云学院",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.801Z"
-    //     },
-    //     {
-    //         "video_path": "/video/广东白云学院_少年披甲气如虹，军装在身胆气雄.mp4",
-    //         "video_name": "少年披甲气如虹，军装在身胆气雄",
-    //         "image": "/video_img/广东白云学院_少年披甲气如虹，军装在身胆气雄.png",
-    //         "video_time": "00:59",
-    //         "uper_img": "/uper_img/广东白云学院.png",
-    //         "video_author_info": "广东白云学院",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.769Z"
-    //     },
-    //     {
-    //         "video_path": "/video/吃肉都廋的小明_那些你很冒险的梦~我陪你去疯.mp4",
-    //         "video_name": "那些你很冒险的梦~我陪你去疯",
-    //         "image": "/video_img/吃肉都廋的小明_那些你很冒险的梦~我陪你去疯.png",
-    //         "video_time": "00:43",
-    //         "uper_img": "/uper_img/吃肉都廋的小明.png",
-    //         "video_author_info": "吃肉都廋的小明",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.747Z"
-    //     },
-    //     {
-    //         "video_path": "/video/Sam哥_时光飞逝岁月如梭.mp4",
-    //         "video_name": "时光飞逝岁月如梭",
-    //         "image": "/video_img/Sam哥_时光飞逝岁月如梭.png",
-    //         "video_time": "04:17",
-    //         "uper_img": "/uper_img/Sam哥.png",
-    //         "video_author_info": "Sam哥",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.614Z"
-    //     },
-    //     {
-    //         "video_path": "/video/Regi嘟嘟_说是全校最猴看的男孩子不过分吧.mp4",
-    //         "video_name": "说是全校最猴看的男孩子不过分吧",
-    //         "image": "/video_img/Regi嘟嘟_说是全校最猴看的男孩子不过分吧.png",
-    //         "video_time": "00:06",
-    //         "uper_img": "/uper_img/Regi嘟嘟.png",
-    //         "video_author_info": "Regi嘟嘟",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.608Z"
-    //     },
-    //     {
-    //         "video_path": "/video/CAMillia_迎新晚会.mp4",
-    //         "video_name": "迎新晚会",
-    //         "image": "/video_img/CAMillia_迎新晚会.png",
-    //         "video_time": "03:20",
-    //         "uper_img": "/uper_img/CAMillia.png",
-    //         "video_author_info": "CAMillia",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.503Z"
-    //     },
-    //     {
-    //         "video_path": "/video/CAMillia_大一新生晚会.mp4",
-    //         "video_name": "大一新生晚会",
-    //         "image": "/video_img/CAMillia_大一新生晚会.png",
-    //         "video_time": "05:57",
-    //         "uper_img": "/uper_img/CAMillia.png",
-    //         "video_author_info": "CAMillia",
-    //         "video_statis": "an hour ago",
-    //         "real_create_time": "2024-12-10T00:21:06.376Z"
-    //     }
-    // ]
-    //
-    // return res.status(200).json(fack_jsondata);
-
     fs.readdir(videoFolder, async (err, files) => {
         if (err) {
             console.error('读取文件夹出错:', err);
@@ -280,37 +133,61 @@ app.get('/videos', async (req, res) => {
             // 检查是否为视频文件
             if (!videoExtensions.includes(ext)) continue;
 
-            const videoPath = path.join(videoFolder, file);
             const baseName = path.basename(file, ext);
+            const videoInfoFilePath = path.join(videoInfoFolder, `${baseName}.json`);
 
-            // 提取作者名（作者名在下划线前）
+            let videoData;
+
+            // 如果视频信息已经存在于缓存文件中，直接读取文件
+            if (fs.existsSync(videoInfoFilePath)) {
+                const cachedData = JSON.parse(fs.readFileSync(videoInfoFilePath, 'utf8'));
+                videoData = {...cachedData}; // 克隆缓存数据
+
+                // 如果存在搜索参数，则进行过滤
+                if (searchQuery) {
+                    const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
+                    const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
+                    if (nameMatch || authorMatch) {
+                        results.push(videoData);
+                    }
+                } else {
+                    results.push(videoData);
+                }
+
+                continue; // 跳过重新计算时间
+            }
+
+            // 如果缓存不存在，获取视频详细信息
+            const videoPath = path.join(videoFolder, file);
             const authorName = baseName.split('_')[0] || '未知作者';
-
-            // 提取视频名称（下划线后面的部分）
             const videoName = baseName.includes('_') ? baseName.split('_').slice(1).join('_') : '未知视频名称';
 
             const thumbnailPath = path.join(imageFolder, `${baseName}.png`);
-            const videoCreationTime = getFileCreationTime(videoPath);
             const realCreateTime = GetRealCreateTime(videoPath);
 
             try {
                 const videoTime = await getVideoDuration(videoPath);
+                const videoCreationTime = getFileCreationTime(videoPath); // 计算创建时间（实时）
 
                 // 如果缩略图不存在，则生成
                 if (!fs.existsSync(thumbnailPath)) {
                     await getVideoThumbnail(videoPath, thumbnailPath);
                 }
 
-                const videoData = {
+                // 创建视频数据对象
+                videoData = {
                     video_path: `/video/${file}`,
                     video_name: videoName,
                     image: `/video_img/${baseName}.png`,
                     video_time: videoTime,
                     uper_img: `/uper_img/${authorName}.png`,
                     video_author_info: authorName,
-                    video_statis: videoCreationTime,
+                    video_statis: videoCreationTime,  // 实时计算
                     real_create_time: realCreateTime
                 };
+
+                // 将视频信息缓存到文件
+                fs.writeFileSync(videoInfoFilePath, JSON.stringify(videoData, null, 2), 'utf8');
 
                 // 如果存在搜索参数，则进行过滤
                 if (searchQuery) {
@@ -372,6 +249,51 @@ app.post('/login', (req, res) => {
             res.status(400).json({error: '用户名或密码错误'});
         }
     });
+});
+
+// 用户注销路由
+app.get('/logout', (req, res) => {
+    req.session.destroy();
+    res.status(200).json({message: '注销成功'});
+});
+
+// 获取当前登录用户信息
+
+app.get('/user', (req, res) => {
+    if (req.session.userId) {
+        const username = req.session.username;
+        const avatarFilename = `${username}.png`;
+        const avatarFilePath = path.join(__dirname, 'uper_images', avatarFilename);
+        const avatarUrl = `/uper_img/${(avatarFilename)}`;
+        const defaultAvatarUrl = '/uper_img/default-avatar.png';
+        
+        // 检查头像文件是否存在
+        fs.access(avatarFilePath, fs.constants.F_OK, (err) => {
+            if (!err) {
+                // 头像文件存在
+                res.status(200).json({
+                    user: {
+                        id: req.session.userId,
+                        username: username,
+                        email: req.session.email,
+                        avatar: avatarUrl
+                    }
+                });
+            } else {
+                // 头像文件不存在，返回默认头像
+                res.status(200).json({
+                    user: {
+                        id: req.session.userId,
+                        username: username,
+                        email: req.session.email,
+                        avatar: defaultAvatarUrl
+                    }
+                });
+            }
+        });
+    } else {
+        res.status(401).json({error: '用户未登录'});
+    }
 });
 
 // 静态文件服务（提供视频和图片访问）

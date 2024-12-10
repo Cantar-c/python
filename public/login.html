@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BaiyunTube - 登录</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="css/video.css">
+    <link rel="stylesheet" href="css/head.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/login.css">
+
+    <script src="js/jquery.js"></script>
+    <script src="js/jump.js"></script>
+    <script src="js/login.js"></script>
+
+</head>
+
+<body>
+<header class="title">
+    <div class="left_element">
+        <img class="burger_icon" src="icon/hamburger-menu.svg" alt="菜单">
+        <a href="/">
+            <img class="logo" src="icon/logo.png" alt="Logo">
+        </a>
+    </div>
+    <div class="center_element">
+        <input class="search" type="text" placeholder="搜索" style="margin-right: 20px;">
+        <div class="search_button_div">
+            <button class="search_button">
+                <img class="search_button_icon" src="icon/search.svg" alt="搜索">
+                <div class="search_button_text">search</div>
+            </button>
+        </div>
+    </div>
+    <div class="right_element" id="user_section">
+        <img id="upload_video" class="upload_video_icon margin_right_20" src="icon/upload.svg" alt="上传视频">
+    </div>
+</header>
+
+<nav class="sidebar">
+    <div id="index_site" class="sidebar_Icons">
+        <div>
+            <img src="icon/home.svg" alt="主页">
+        </div>
+        <div>主页</div>
+    </div>
+    <div id="official_site" class="sidebar_Icons">
+        <div>
+            <img src="icon/指南.svg" alt="官网">
+        </div>
+        <div>官网</div>
+    </div>
+    <div id='library' class="sidebar_Icons">
+        <div>
+            <img src="icon/图书馆.svg" alt="图书馆">
+        </div>
+        <div>图书馆</div>
+    </div>
+    <div id='selfInfo' class="sidebar_Icons">
+        <div>
+            <img src="icon/原稿.svg" alt="我的合集">
+        </div>
+        <div>我的合集</div>
+    </div>
+</nav>
+
+<main>
+    <div class="main_container">
+        <div class="form_container">
+            <h1>登录</h1>
+            <form id="loginForm">
+                <div class="form_group">
+                    <label>用户名</label>
+                    <input type="text" name="username" required>
+                </div>
+                <div class="form_group">
+                    <label>密码</label>
+                    <input type="password" name="password" required>
+                </div>
+                <button type="submit">登录</button>
+            </form>
+            <div class="msg" id="message"></div>
+            <div class="link">
+                没有账号？<a href="register.html">去注册</a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    const form = document.getElementById('loginForm');
+    const messageDiv = document.getElementById('message');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        messageDiv.textContent = ''; // 清空消息
+
+        const formData = new FormData(form);
+        const data = {
+            username: formData.get('username'),
+            password: formData.get('password')
+        };
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        }).then(response => response.json())
+            .then(result => {
+                if (result.error) {
+                    messageDiv.style.color = '#ff6666';
+                    messageDiv.textContent = '登录失败: ' + result.error;
+                } else {
+                    messageDiv.style.color = '#66ff66';
+                    messageDiv.textContent = '登录成功！即将跳转...';
+                    setTimeout(() => {
+                        window.location.href = '/index.html';
+                    }, 1000);
+                }
+            }).catch(err => {
+            messageDiv.style.color = '#ff6666';
+            messageDiv.textContent = '请求失败，请稍后重试。';
+        });
+    });
+</script>
+
+</body>
+</html>
