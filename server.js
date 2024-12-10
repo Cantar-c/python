@@ -173,7 +173,6 @@ const processVideoFile = async (file) => {
     }
 };
 
-
 // 配置 Multer 存储引擎
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -233,11 +232,10 @@ app.post('/upload', (req, res) => {
     });
 });
 
-
 // 视频列表路由
+// 返回所有视频信息
 app.get('/videos', async (req, res) => {
     const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
-    const userQuery = req.query.user ? req.query.user.trim().toLowerCase() : null;
 
     try {
         const files = await fsp.readdir(videoFolder);
@@ -268,25 +266,85 @@ app.get('/videos', async (req, res) => {
                 const videoCreationTime = getFileCreationTime(videoPath);
                 videoData.video_statis = videoCreationTime;
 
-                // 过滤逻辑：1. 全部文件名搜索
+                // 过滤逻辑
                 if (searchQuery) {
                     const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
                     const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
                     if (nameMatch || authorMatch) {
                         results.push(videoData);
                     }
+                } else {
+                    results.push(videoData);
                 }
-
-                // 过滤逻辑：2. 用户前缀搜索
-                if (userQuery) {
-                    const userPrefixMatch = baseName.toLowerCase().startsWith(userQuery.toLowerCase());
-                    if (userPrefixMatch) {
+            } catch (cacheError) {
+                // 如果读取缓存出错，重新生成缓存
+                videoData = await processVideoFile(file);
+                if (videoData) {
+                    // 过滤逻辑
+                    if (searchQuery) {
+                        const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
+                        const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
+                        if (nameMatch || authorMatch) {
+                            results.push(videoData);
+                        }
+                    } else {
                         results.push(videoData);
                     }
                 }
+            }
+        }
 
-                // 如果没有任何查询条件，默认返回所有视频数据
-                if (!searchQuery && !userQuery) {
+        // 按照 real_create_time（创建时间）进行排序，新的在前面，旧的在后面
+        results.sort((a, b) => new Date(b.real_create_time) - new Date(a.real_create_time));
+
+        res.json(results);
+    } catch (err) {
+        console.error('读取视频文件夹出错:', err);
+        res.status(500).json({error: '服务器内部错误'});
+    }
+});
+
+app.get('/user_videos', async (req, res) => {
+    const username = req.session.username;
+    if (!username) {
+        return res.status(401).json({error: '未授权：请先登录'});
+    }
+
+    try {
+        const files = await fsp.readdir(videoFolder);
+        const results = [];
+
+        // 使用 for...of 循环以确保异步操作按顺序执行
+        for (const file of files) {
+            const ext = path.extname(file).toLowerCase();
+
+            // 跳过非视频文件
+            if (!videoExtensions.includes(ext)) continue;
+
+            const baseName = path.basename(file, ext);
+            const videoInfoFilePath = path.join(videoInfoFolder, `${baseName}.json`);
+
+            let videoData = null;
+
+            try {
+                // 尝试读取缓存文件
+                const cachedContent = await fsp.readFile(videoInfoFilePath, 'utf8');
+                const cachedData = JSON.parse(cachedContent);
+
+                // 克隆缓存数据
+                videoData = {...cachedData};
+
+                // 实时计算 video_statis
+                const videoPath = path.join(videoFolder, file);
+                const videoCreationTime = getFileCreationTime(videoPath);
+                videoData.video_statis = videoCreationTime;
+
+                if (username) {
+                    const userPrefixMatch = baseName.toLowerCase().startsWith(username.toLowerCase());
+                    if (userPrefixMatch) {
+                        results.push(videoData);
+                    }
+                } else {
                     results.push(videoData);
                 }
             } catch (cacheError) {
@@ -322,7 +380,6 @@ app.get('/videos', async (req, res) => {
         res.status(500).json({error: '服务器内部错误'});
     }
 });
-
 
 // 用户注册路由
 app.post('/register', (req, res) => {

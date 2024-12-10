@@ -8,11 +8,38 @@ body {
     margin: 0%;
     padding-top: 85px;
     padding-left: 95px;
-    /*height: 3000px;*/
+    background-image: url("/img/background.png");
     background-color: rgb(245, 243, 243);
 }
 
 a {
     text-decoration: none;
     color: black;
+}
+
+#user_section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.logout_button {
+    margin-left: 20px;
+    padding: 5px 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout_button:hover {
+    background-color: #d32f2f;
 }

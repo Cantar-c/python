@@ -42,8 +42,6 @@ $(document).ready(function () {
         // 使用后端返回的 avatar URL
         var avatarUrl = user.avatar;
 
-        console.log("Avatar URL:", avatarUrl);
-
         // 创建头像 img 元素，并包裹在链接中
         var avatarLink = $('<a>', {
             href: '/user.html', title: '查看个人信息'
@@ -54,7 +52,23 @@ $(document).ready(function () {
         });
 
         avatarLink.append(avatarImg);
-        $('#user_section').append(avatarLink);
+
+        // 创建注销按钮
+        var logoutButton = $('<button>', {
+            text: '退出', class: 'logout_button', click: function () {
+                $.ajax({
+                    url: '/logout', method: 'GET', success: function () {
+                        // 注销成功后，重新加载当前页面
+                        window.location.reload();
+                    }, error: function () {
+                        alert('注销失败，请重试。');
+                    }
+                });
+            }
+        });
+
+        // 将头像链接和注销按钮添加到 #user_section
+        $('#user_section').append(avatarLink, logoutButton);
     }
 
     // 函数：创建登录按钮
