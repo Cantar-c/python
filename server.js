@@ -234,9 +234,10 @@ app.post('/upload', (req, res) => {
 });
 
 
-// 返回所有视频信息
+// 视频列表路由
 app.get('/videos', async (req, res) => {
     const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
+    const userQuery = req.query.user ? req.query.user.trim().toLowerCase() : null;
 
     try {
         const files = await fsp.readdir(videoFolder);
@@ -267,29 +268,46 @@ app.get('/videos', async (req, res) => {
                 const videoCreationTime = getFileCreationTime(videoPath);
                 videoData.video_statis = videoCreationTime;
 
-                // 过滤逻辑
+                // 过滤逻辑：1. 全部文件名搜索
                 if (searchQuery) {
                     const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
                     const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
                     if (nameMatch || authorMatch) {
                         results.push(videoData);
                     }
-                } else {
+                }
+
+                // 过滤逻辑：2. 用户前缀搜索
+                if (userQuery) {
+                    const userPrefixMatch = baseName.toLowerCase().startsWith(userQuery.toLowerCase());
+                    if (userPrefixMatch) {
+                        results.push(videoData);
+                    }
+                }
+
+                // 如果没有任何查询条件，默认返回所有视频数据
+                if (!searchQuery && !userQuery) {
                     results.push(videoData);
                 }
             } catch (cacheError) {
                 // 如果读取缓存出错，重新生成缓存
                 videoData = await processVideoFile(file);
                 if (videoData) {
-                    // 过滤逻辑
+                    // 过滤逻辑：1. 全部文件名搜索
                     if (searchQuery) {
                         const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
                         const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
                         if (nameMatch || authorMatch) {
                             results.push(videoData);
                         }
-                    } else {
-                        results.push(videoData);
+                    }
+
+                    // 过滤逻辑：2. 用户前缀搜索
+                    if (userQuery) {
+                        const userPrefixMatch = baseName.toLowerCase().startsWith(userQuery.toLowerCase());
+                        if (userPrefixMatch) {
+                            results.push(videoData);
+                        }
                     }
                 }
             }
@@ -304,6 +322,7 @@ app.get('/videos', async (req, res) => {
         res.status(500).json({error: '服务器内部错误'});
     }
 });
+
 
 // 用户注册路由
 app.post('/register', (req, res) => {
