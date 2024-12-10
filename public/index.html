@@ -34,14 +34,7 @@
         </div>
     </div>
     <div class="right_element">
-        <img class="upload_video_icon" src="icon/upload.svg" alt="上传视频">
-        <img class="nine_squares_icon" src="icon/youtube-apps.svg" alt="应用">
-        <div class="notice_box">
-            <img class="notice" src="icon/notifications.svg" alt="通知">
-            <div class="notice_number">
-                9+
-            </div>
-        </div>
+        <img id="upload_video" class="upload_video_icon margin_right_20" src="icon/upload.svg" alt="上传视频">
         <img class="avatar" src="img/carebears.jpg" alt="头像">
     </div>
 </header>
@@ -82,7 +75,13 @@
 </nav>
 
 <main>
-    <section class="video_grid" id="videoGrid"></section>
+    <div style="display: flex; justify-content: center; align-items: center;">
+        <img id='loading' class="video" src="img/loading.gif" alt="video" style="max-width: 100%; max-height: 100%;">
+    </div>
+    <section class="video_grid" id="videoGrid">
+    </section>
+
+
 </main>
 
 </body>

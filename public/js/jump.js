@@ -26,4 +26,11 @@ $(document).ready(function () {
         // 跳转到目标网站
         window.location.href = targetUrl;
     });
+
+    $("#upload_video").click(function () {
+        // 指定跳转的 URL
+        const targetUrl = "/upload.html";
+        // 跳转到目标网站
+        window.location.href = targetUrl;
+    });
 });

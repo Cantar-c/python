@@ -4,14 +4,54 @@
     grid-template-columns: 1fr 1fr 1fr;
     column-gap: 15px;
     row-gap: 40px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 35px;
 }
 
 #video_container {
-    position: relative;
-    margin-left: 2%;
-    height: 0;
+    display: grid;
+    grid-template-columns: 70% 28%; /* 左侧视频占70%，右侧推荐占28% */
+    grid-template-rows: 1fr; /* 行高设置为相等 */
 }
 
+
+#video_title {
+    text-align: center;
+    font-size: 24px;
+    margin: 20px 0;
+    font-weight: 500;
+}
+
+#video_container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#video_player {
+    grid-column: 1; /* 设置为第一列 */
+}
+
+
+#recommendation {
+    width: 28%;
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+    height: 500px;
+    overflow-y: auto;
+}
+
+#recommendation h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+#error-message {
+    display: none;
+    text-align: center;
+}
 
 @media (max-width: 950px) {
     .video_grid {
@@ -99,5 +139,86 @@
 
 .video_author_info {
     margin-bottom: 4px;
-}            
+}
 
+video {
+    width: 1189px;
+    height: auto;
+}
+
+
+#recommendation {
+    grid-column: 2; /* 设置为第二列 */
+    background-color: #f0f0f0;
+    padding: 20px;
+    box-sizing: border-box;
+    margin-top: 70px;
+    height: 670px;
+    overflow-y: auto;
+}
+
+#recommendation-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.recommended-video-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.recommended-video-item .thumbnail {
+    position: relative;
+    width: 120px;
+    height: 68px;
+}
+
+.recommended-video-item .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.recommended-video-item .thumbnail .video-duration {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.recommended-video-item .details {
+    flex: 1;
+}
+
+.recommended-video-item .details h4 {
+    font-size: 14px;
+    margin: 0 0 5px;
+    line-height: 1.2;
+}
+
+.recommended-video-item .author-info {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+}
+
+.recommended-video-item .author-info img {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+}
+
+.recommended-video-item .stats {
+    font-size: 12px;
+    color: gray;
+}

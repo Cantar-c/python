@@ -35,14 +35,7 @@
         </div>
     </div>
     <div class="right_element">
-        <img class="upload_video_icon" src="icon/upload.svg" alt="上传视频">
-        <img class="nine_squares_icon" src="icon/youtube-apps.svg" alt="应用">
-        <div class="notice_box">
-            <img class="notice" src="icon/notifications.svg" alt="通知">
-            <div class="notice_number">
-                9+
-            </div>
-        </div>
+        <img id="upload_video" class="upload_video_icon margin_right_20" src="icon/upload.svg" alt="上传视频">
         <img class="avatar" src="img/carebears.jpg" alt="头像">
     </div>
 </header>
@@ -84,54 +77,25 @@
 
 <main>
     <div id="video_container">
+        <div id="main_video">
+            <h2 id="video_title"></h2>
+            <div id="video_player"></div>
+        </div>
+        <div id="recommendation">
+            <h3 style="margin-top: 5px;">推荐视频</h3>
+            <ul id="recommendation-list"></ul>
+        </div>
     </div>
 
     <!-- Error Message -->
     <div id="error-message" style="display: none; text-align: center;">
         <h2>此视频无法再播放</h2>
-        <img src="/video_img/default-image.png" alt="不可播放视频" />
+        <img src="/video_img/default-image.png" alt="不可播放视频"/>
     </div>
+
+    <script src="js/video_show.js"></script>
+    <script src="js/video_tuijian.js"></script>
 </main>
-
-<script>
-    // Get video name from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const videoName = urlParams.get('name');
-
-    const videoContainer = document.getElementById('video_container');
-    const errorMessage = document.getElementById('error-message');
-
-    if (videoName) {
-        // Check if the video exists
-        const videoPath = videoName; // The path where videos are stored
-
-        const videoElement = document.createElement('video');
-        videoElement.setAttribute('controls', 'true');
-        videoElement.setAttribute('width', '80%');
-
-        // Try loading the video
-        videoElement.src = videoPath;
-
-        videoElement.onerror = () => {
-            // If video loading fails, show error message
-            videoContainer.style.display = 'none';
-            errorMessage.style.display = 'block';
-        };
-
-        // If video is found, show it
-        videoElement.onloadstart = () => {
-            videoContainer.style.display = 'block';
-            errorMessage.style.display = 'none';
-        };
-
-        // Append video player to the container
-        videoContainer.appendChild(videoElement);
-    } else {
-        // If no video name is provided, show error
-        videoContainer.style.display = 'none';
-        errorMessage.style.display = 'block';
-    }
-</script>
 
 </body>
 </html>

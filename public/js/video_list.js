@@ -1,6 +1,10 @@
 $(document).ready(function () {
     console.log('页面加载完成，开始请求视频数据');
 
+    var loading = document.getElementById('loading');
+
+    console.log('loading:', loading);
+
     // 获取 URL 中的搜索参数
     function getQueryParam(param) {
         let urlParams = new URLSearchParams(window.location.search);
@@ -43,9 +47,7 @@ $(document).ready(function () {
     // 请求后端 API 获取视频数据
     $.ajax({
         url: '/videos', // 后端视频数据接口
-        method: 'GET',
-        dataType: 'json',
-        data: ajaxParams, // 传递搜索参数
+        method: 'GET', dataType: 'json', data: ajaxParams, // 传递搜索参数
         success: function (data) {
             console.log('成功获取视频数据:', data);
 
@@ -64,9 +66,7 @@ $(document).ready(function () {
                     // 创建封面图部分
                     var coverImageDiv = $('<div>', {class: 'cover_image'});
                     var image = $('<img>', {
-                        class: 'image',
-                        src: video.image,
-                        alt: video.video_name
+                        class: 'image', src: video.image, alt: video.video_name
                     }).on('error', function () {
                         console.error(`图片加载失败: ${video.image}`);
                         $(this).attr('src', '/video_images/default-image.png'); // 替换为默认图片路径
@@ -81,9 +81,7 @@ $(document).ready(function () {
                     // 上部图片（作者头像）
                     var uperDiv = $('<div>', {class: 'uper_div'});
                     var uperImg = $('<img>', {
-                        class: 'uper_img',
-                        src: video.uper_img,
-                        alt: video.video_author_info
+                        class: 'uper_img', src: video.uper_img, alt: video.video_author_info
                     }).on('error', function () {
                         console.error(`作者头像加载失败: ${video.uper_img}`);
                         $(this).attr('src', '/uper_img/default-avatar.png'); // 替换为默认头像路径
@@ -93,16 +91,13 @@ $(document).ready(function () {
                     // 视频详细信息
                     var videoInfoDiv = $('<div>', {class: 'video_info'});
                     var videoTitleP = $('<p>', {
-                        class: 'video_title_p',
-                        text: video.video_name
+                        class: 'video_title_p', text: video.video_name
                     });
                     var videoAuthorInfoP = $('<p>', {
-                        class: 'video_author_info',
-                        text: video.video_author_info
+                        class: 'video_author_info', text: video.video_author_info
                     });
                     var videoStatisP = $('<p>', {
-                        class: 'video_statis',
-                        text: video.video_statis
+                        class: 'video_statis', text: video.video_statis
                     });
 
                     videoInfoDiv.append(videoTitleP)
@@ -135,10 +130,12 @@ $(document).ready(function () {
                 console.error('返回的数据格式不正确:', data);
                 $('#videoGrid').append('<p>视频数据加载失败。</p>');
             }
-        },
-        error: function (jqXHR, textStatus, errorThrown) {
+            loading.style.display = 'none';
+        }, error: function (jqXHR, textStatus, errorThrown) {
             console.error('获取视频数据出错:', textStatus, errorThrown);
             $('#videoGrid').append('<p>无法加载视频数据。</p>');
+            loading.style.display = 'none';
         }
     });
+
 });
