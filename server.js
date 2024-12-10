@@ -5,8 +5,12 @@ const fsp = require('fs').promises; // Promise 版本的 fs
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const moment = require('moment');
+const multer = require('multer');
 const sqlite3 = require('sqlite3').verbose();
 const bodyParser = require('body-parser');
+const sanitize = require("sanitize-filename");
+const iconv = require('iconv-lite'); // 用于修复编码问题
+
 
 // 创建数据库文件并打开
 const db = new sqlite3.Database('users.db', (err) => {
@@ -169,6 +173,67 @@ const processVideoFile = async (file) => {
     }
 };
 
+
+// 配置 Multer 存储引擎
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, videoFolder);
+    }, filename: function (req, file, cb) {
+        const username = req.session.username;
+        if (!username) {
+            return cb(new Error('用户未登录，无法上传文件'));
+        }
+
+        // 清理文件名，保留中文字符
+        const safeOriginalName = sanitize(file.originalname);
+
+        // 解码文件名，将 URL 编码转换为 UTF-8 字符
+        const decodedName = decodeURIComponent(safeOriginalName);
+
+        const newFilename = `${username}_${decodedName}`;
+        cb(null, newFilename);
+    }
+});
+
+// 初始化 Multer 中间件
+const upload = multer({
+    storage: storage, limits: {fileSize: 100 * 1024 * 1024}, // 限制文件大小为 100MB
+    fileFilter: function (req, file, cb) {
+        const allowedTypes = /mp4|avi|mkv|mov/;
+        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedTypes.test(file.mimetype);
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('仅允许上传视频文件（mp4, avi, mkv, mov）'));
+        }
+    }
+});
+
+// 上传端点
+app.post('/upload', (req, res) => {
+    const username = req.session.username;
+    if (!username) {
+        return res.status(401).json({error: '未授权：请先登录'});
+    }
+
+    upload.single('video')(req, res, function (err) {
+        if (err instanceof multer.MulterError) {
+            return res.status(400).json({error: err.message});
+        } else if (err) {
+            return res.status(400).json({error: err.message});
+        }
+
+        if (req.file) {
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.json({message: '文件上传成功', file: req.file});
+        } else {
+            res.status(400).json({error: '没有选择文件'});
+        }
+    });
+});
+
+
 // 返回所有视频信息
 app.get('/videos', async (req, res) => {
     const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
@@ -287,7 +352,6 @@ app.get('/logout', (req, res) => {
 });
 
 // 获取当前登录用户信息
-
 app.get('/user', (req, res) => {
     if (req.session.userId) {
         const username = req.session.username;
@@ -318,6 +382,7 @@ app.get('/user', (req, res) => {
         res.status(401).json({error: '用户未登录'});
     }
 });
+
 
 // 静态文件服务（提供视频和图片访问）
 app.use('/video', express.static(videoFolder));
