@@ -22,7 +22,7 @@ $(document).ready(function () {
 
     $("#selfInfo").click(function () {
         // 指定跳转的 URL
-        const targetUrl = "/infos.html";
+        const targetUrl = "/user.html";
         // 跳转到目标网站
         window.location.href = targetUrl;
     });

@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
+const fsp = require('fs').promises; // Promise 版本的 fs
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 const moment = require('moment');
@@ -43,6 +44,9 @@ db.run(`CREATE TABLE IF NOT EXISTS users
         console.error("表创建失败: " + err.message);
     }
 });
+
+// 视频文件扩展名
+const videoExtensions = ['.mp4', '.avi', '.mkv', '.mov', '.flv', '.wmv'];
 
 // 创建 Express 应用
 const app = express();
@@ -114,36 +118,91 @@ function getVideoThumbnail(videoPath, thumbnailPath) {
     });
 }
 
-// 获取视频文件路径
+// 处理单个视频文件，生成 videoData 并缓存
+const processVideoFile = async (file) => {
+    const ext = path.extname(file).toLowerCase();
+
+    // 检查是否为视频文件
+    if (!videoExtensions.includes(ext)) return null;
+
+    const baseName = path.basename(file, ext);
+    const videoPath = path.join(videoFolder, file);
+    const videoInfoFilePath = path.join(videoInfoFolder, `${baseName}.json`);
+    const thumbnailPath = path.join(imageFolder, `${baseName}.png`);
+
+    const authorName = baseName.split('_')[0] || '未知作者';
+    const videoName = baseName.includes('_') ? baseName.split('_').slice(1).join('_') : '未知视频名称';
+    const realCreateTime = GetRealCreateTime(videoPath);
+
+    try {
+        const videoTime = await getVideoDuration(videoPath);
+        const videoCreationTime = getFileCreationTime(videoPath); // 实时计算
+
+        // 如果缩略图不存在，则生成
+        try {
+            await fsp.access(thumbnailPath);
+        } catch {
+            await getVideoThumbnail(videoPath, thumbnailPath);
+        }
+
+        // 创建视频数据对象，不包含 video_statis
+        const videoData = {
+            video_path: `/video/${file}`,
+            video_name: videoName,
+            image: `/video_img/${baseName}.png`,
+            video_time: videoTime,
+            uper_img: `/uper_img/${authorName}.png`,
+            video_author_info: authorName, // video_statis: videoCreationTime, // 不缓存
+            real_create_time: realCreateTime
+        };
+
+        // 将视频信息（不包含 video_statis）缓存到文件
+        await fsp.writeFile(videoInfoFilePath, JSON.stringify(videoData, null, 2), 'utf8');
+
+        // 实时计算 video_statis
+        videoData.video_statis = videoCreationTime;
+
+        return videoData;
+    } catch (error) {
+        console.error(`处理视频文件 ${file} 时出错:`, error);
+        return null;
+    }
+};
+
+// 返回所有视频信息
 app.get('/videos', async (req, res) => {
     const searchQuery = req.query.search ? req.query.search.trim().toLowerCase() : null;
 
-    fs.readdir(videoFolder, async (err, files) => {
-        if (err) {
-            console.error('读取文件夹出错:', err);
-            return res.json([]);
-        }
-
-        const videoExtensions = ['.mp4', '.avi', '.mkv', '.mov', '.flv', '.wmv'];
-
+    try {
+        const files = await fsp.readdir(videoFolder);
         const results = [];
+
+        // 使用 for...of 循环以确保异步操作按顺序执行
         for (const file of files) {
             const ext = path.extname(file).toLowerCase();
 
-            // 检查是否为视频文件
+            // 跳过非视频文件
             if (!videoExtensions.includes(ext)) continue;
 
             const baseName = path.basename(file, ext);
             const videoInfoFilePath = path.join(videoInfoFolder, `${baseName}.json`);
 
-            let videoData;
+            let videoData = null;
 
-            // 如果视频信息已经存在于缓存文件中，直接读取文件
-            if (fs.existsSync(videoInfoFilePath)) {
-                const cachedData = JSON.parse(fs.readFileSync(videoInfoFilePath, 'utf8'));
-                videoData = {...cachedData}; // 克隆缓存数据
+            try {
+                // 尝试读取缓存文件
+                const cachedContent = await fsp.readFile(videoInfoFilePath, 'utf8');
+                const cachedData = JSON.parse(cachedContent);
 
-                // 如果存在搜索参数，则进行过滤
+                // 克隆缓存数据
+                videoData = {...cachedData};
+
+                // 实时计算 video_statis
+                const videoPath = path.join(videoFolder, file);
+                const videoCreationTime = getFileCreationTime(videoPath);
+                videoData.video_statis = videoCreationTime;
+
+                // 过滤逻辑
                 if (searchQuery) {
                     const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
                     const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
@@ -153,62 +212,32 @@ app.get('/videos', async (req, res) => {
                 } else {
                     results.push(videoData);
                 }
-
-                continue; // 跳过重新计算时间
-            }
-
-            // 如果缓存不存在，获取视频详细信息
-            const videoPath = path.join(videoFolder, file);
-            const authorName = baseName.split('_')[0] || '未知作者';
-            const videoName = baseName.includes('_') ? baseName.split('_').slice(1).join('_') : '未知视频名称';
-
-            const thumbnailPath = path.join(imageFolder, `${baseName}.png`);
-            const realCreateTime = GetRealCreateTime(videoPath);
-
-            try {
-                const videoTime = await getVideoDuration(videoPath);
-                const videoCreationTime = getFileCreationTime(videoPath); // 计算创建时间（实时）
-
-                // 如果缩略图不存在，则生成
-                if (!fs.existsSync(thumbnailPath)) {
-                    await getVideoThumbnail(videoPath, thumbnailPath);
-                }
-
-                // 创建视频数据对象
-                videoData = {
-                    video_path: `/video/${file}`,
-                    video_name: videoName,
-                    image: `/video_img/${baseName}.png`,
-                    video_time: videoTime,
-                    uper_img: `/uper_img/${authorName}.png`,
-                    video_author_info: authorName,
-                    video_statis: videoCreationTime,  // 实时计算
-                    real_create_time: realCreateTime
-                };
-
-                // 将视频信息缓存到文件
-                fs.writeFileSync(videoInfoFilePath, JSON.stringify(videoData, null, 2), 'utf8');
-
-                // 如果存在搜索参数，则进行过滤
-                if (searchQuery) {
-                    const nameMatch = videoName.toLowerCase().includes(searchQuery);
-                    const authorMatch = authorName.toLowerCase().includes(searchQuery);
-                    if (nameMatch || authorMatch) {
+            } catch (cacheError) {
+                // 如果读取缓存出错，重新生成缓存
+                videoData = await processVideoFile(file);
+                if (videoData) {
+                    // 过滤逻辑
+                    if (searchQuery) {
+                        const nameMatch = videoData.video_name.toLowerCase().includes(searchQuery);
+                        const authorMatch = videoData.video_author_info.toLowerCase().includes(searchQuery);
+                        if (nameMatch || authorMatch) {
+                            results.push(videoData);
+                        }
+                    } else {
                         results.push(videoData);
                     }
-                } else {
-                    results.push(videoData);
                 }
-            } catch (error) {
-                console.error('处理视频时出错:', error);
             }
         }
 
-        // 按照 video_statis（创建时间）进行排序，新的在前面，旧的在后面
+        // 按照 real_create_time（创建时间）进行排序，新的在前面，旧的在后面
         results.sort((a, b) => new Date(b.real_create_time) - new Date(a.real_create_time));
 
         res.json(results);
-    });
+    } catch (err) {
+        console.error('读取视频文件夹出错:', err);
+        res.status(500).json({error: '服务器内部错误'});
+    }
 });
 
 // 用户注册路由
@@ -266,27 +295,21 @@ app.get('/user', (req, res) => {
         const avatarFilePath = path.join(__dirname, 'uper_images', avatarFilename);
         const avatarUrl = `/uper_img/${(avatarFilename)}`;
         const defaultAvatarUrl = '/uper_img/default-avatar.png';
-        
+
         // 检查头像文件是否存在
         fs.access(avatarFilePath, fs.constants.F_OK, (err) => {
             if (!err) {
                 // 头像文件存在
                 res.status(200).json({
                     user: {
-                        id: req.session.userId,
-                        username: username,
-                        email: req.session.email,
-                        avatar: avatarUrl
+                        id: req.session.userId, username: username, email: req.session.email, avatar: avatarUrl
                     }
                 });
             } else {
                 // 头像文件不存在，返回默认头像
                 res.status(200).json({
                     user: {
-                        id: req.session.userId,
-                        username: username,
-                        email: req.session.email,
-                        avatar: defaultAvatarUrl
+                        id: req.session.userId, username: username, email: req.session.email, avatar: defaultAvatarUrl
                     }
                 });
             }
