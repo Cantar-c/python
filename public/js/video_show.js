@@ -5,6 +5,7 @@ const videoName = urlParams.get('name');
 const videoPlayer = document.getElementById('video_player');
 const videoTitle = document.getElementById('video_title');
 const errorMessage = document.getElementById('error-message');
+const recommendation = document.getElementById('recommendation');
 
 if (videoName) {
     // 从文件名中提取视频标题
@@ -25,12 +26,16 @@ if (videoName) {
         // 如果视频加载失败，显示错误消息
         videoPlayer.style.display = 'none';
         errorMessage.style.display = 'block';
+        recommendation.style.display = 'none';
+        videoTitle.style.display = 'none';
     };
 
     // 视频开始加载时显示视频播放器，隐藏错误消息
     videoElement.oncanplay = () => {
         videoPlayer.style.display = 'block';
         errorMessage.style.display = 'none';
+        recommendation.style.display = 'block';
+        videoTitle.style.display = 'block';
     };
 
     // 将视频播放器添加到容器中
@@ -39,4 +44,6 @@ if (videoName) {
     // 如果未提供视频名称，显示错误消息
     videoPlayer.style.display = 'none';
     errorMessage.style.display = 'block';
+    recommendation.style.display = 'none';
+    videoTitle.style.display = 'none';
 }
