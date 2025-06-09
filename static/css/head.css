@@ -19,7 +19,7 @@
 }
 
 .left_element {
-    width: 150px;
+    width: 550px;
     display: flex;
     flex-direction: row;
     align-items: center;

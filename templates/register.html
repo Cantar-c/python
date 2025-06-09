@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}BaiyunTube - 注册{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="static/css/register.css">
+<script src="static/js/register.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="main_container">
+    <div class="form_container">
+        <h1>注册</h1>
+        <form id="registerForm">
+            <div class="form_group">
+                <label>用户名</label>
+                <input type="text" name="username" required>
+            </div>
+            <div class="form_group">
+                <label>邮箱</label>
+                <input type="email" name="email" required>
+            </div>
+            <div class="form_group">
+                <label>密码</label>
+                <input type="password" name="password" required>
+            </div>
+            <button type="submit">注册</button>
+        </form>
+        <div class="msg" id="message"></div>
+        <div class="link">
+            已有账号？<a href="login">去登录</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

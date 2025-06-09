@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}BaiyunTube - 首页{% endblock %}
+
+{% block head %}
+<script src="static/js/video_list.js"></script>
+{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center;">
+    <img id='loading' class="video" src="static/img/loading.gif" alt="video" style="max-width: 100%; max-height: 100%;">
+</div>
+<section class="video_grid" id="videoGrid"></section>
+{% endblock %}

@@ -21,7 +21,7 @@ form.addEventListener('submit', (e) => {
                 messageDiv.style.color = '#66ff66';
                 messageDiv.textContent = '注册成功！即将跳转...';
                 setTimeout(() => {
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 }, 1000);
             }
         }).catch(err => {

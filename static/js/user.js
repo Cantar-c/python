@@ -75,7 +75,7 @@ $(document).ready(function () {
     function createLoginButton() {
         var loginButton = $('<button>', {
             text: '登录', class: 'login_button', click: function () {
-                window.location.href = '/login.html';
+                window.location.href = '/login';
             }
         });
 
@@ -85,7 +85,7 @@ $(document).ready(function () {
 
     // 函数：重定向到登录页面，并附加 redirect 参数
     function redirectToLogin(redirectPage) {
-        var loginUrl = '/login.html?redirect=/' + encodeURIComponent(redirectPage);
+        var loginUrl = '/login?redirect=/' + encodeURIComponent(redirectPage);
         window.location.href = loginUrl;
     }
 });

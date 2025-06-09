@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}BaiyunTube - 上传视频{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="static/css/upload.css">
+<script src="static/js/upload.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="upload-container">
+    <h2>上传视频</h2>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="video">选择视频文件</label>
+            <input type="file" id="video" name="video" accept="video/*" required>
+        </div>
+        <div class="form-group">
+            <video id="videoPreview" class="video-preview" controls></video>
+        </div>
+        <button type="submit" class="upload-button">上传</button>
+    </form>
+    <div class="upload-status" id="uploadStatus"></div>
+    <div class="progress" id="uploadProgress">
+        <div class="progress-bar" id="progressBar">0%</div>
+    </div>
+</div>
+{% endblock %}
