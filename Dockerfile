@@ -54,15 +54,17 @@ RUN git clone https://github.com/FFmpeg/nv-codec-headers.git && \
     cd .. && rm -rf nv-codec-headers
 
 # 编译安装 FFmpeg
-WORKDIR /opt
 ENV PKG_CONFIG_PATH="/usr/local/lib/pkgconfig"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+
+WORKDIR /opt
 RUN git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git ffmpeg && \
     cd ffmpeg && \
     ./configure \
       --prefix=/usr/local \
       --pkg-config-flags="--static" \
-      --extra-cflags="-I/usr/local/include" \
-      --extra-ldflags="-L/usr/local/lib" \
+      --extra-cflags="-I/usr/local/include -I/usr/local/cuda/include" \
+      --extra-ldflags="-L/usr/local/lib -L/usr/local/cuda/lib64" \
       --enable-shared \
       --disable-static \
       --disable-asm \
