@@ -10,10 +10,10 @@ $(document).ready(function () {
 
     // 请求 /user 接口以获取用户信息
     $.ajax({
-        url: '/user', method: 'GET', dataType: 'json', success: function (response) {
-            if (response.user && response.user.username) {
+        url: '/api/user_info', method: 'GET', dataType: 'json', success: function (response) {
+            if (response.code === 200) {
                 // 用户已登录，处理用户界面
-                handleUserLoggedIn(response.user);
+                handleUserLoggedIn(response.data);
             } else {
                 // 用户未登录
                 if (isProtectedPage) {
@@ -44,7 +44,7 @@ $(document).ready(function () {
 
         // 创建头像 img 元素，并包裹在链接中
         var avatarLink = $('<a>', {
-            href: '/user.html', title: '查看个人信息'
+            href: '/user', title: '查看个人信息'
         });
 
         var avatarImg = $('<img>', {
@@ -57,7 +57,7 @@ $(document).ready(function () {
         var logoutButton = $('<button>', {
             text: '退出', class: 'logout_button', click: function () {
                 $.ajax({
-                    url: '/logout', method: 'GET', success: function () {
+                    url: '/api/logout', method: 'POST', success: function () {
                         // 注销成功后，重新加载当前页面
                         window.location.reload();
                     }, error: function () {

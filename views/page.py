@@ -1,5 +1,7 @@
 from flask import Blueprint, render_template
 
+from utils.models import Video
+
 page = Blueprint('page', __name__)
 
 
@@ -30,4 +32,5 @@ def user():
 
 @page.route('/video/<video_id>')
 def video(video_id):
-    return render_template('video.html', video_id=video_id)
+    video = Video.query.filter_by(id=video_id).first()
+    return render_template('video.html', video=video)

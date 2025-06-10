@@ -1,8 +1,10 @@
 // 获取推荐视频接口的数据
 async function fetchRecommendationVideos() {
     try {
-        const response = await fetch('/videos');
-        const videos = await response.json();
+        const response = await fetch('/api/videos');
+        let videos = await response.json();
+
+        videos = videos.data;
 
         const recommendationList = document.getElementById('recommendation-list');
 
@@ -17,11 +19,11 @@ async function fetchRecommendationVideos() {
             // HTML 结构
             listItem.innerHTML = `
                     <div class="thumbnail">
-                        <img src="${video.image}" alt="${video.video_name}">
-                        <span class="video-duration">${video.video_time}</span>
+                        <img src="${video.thumbnail}" alt="${video.title}">
+                        <span class="video-duration">${video.duration}</span>
                     </div>
                     <div class="details">
-                        <h4>${video.video_name}</h4>
+                        <h4>${video.title}</h4>
                         <div class="author-info">
                             <img src="${video.uper_img}" alt="UP主头像">
                             <span>${video.video_author_info}</span>
@@ -36,7 +38,7 @@ async function fetchRecommendationVideos() {
             listItem.style.cursor = 'pointer'; // 更改鼠标悬停时的指针样式
             listItem.addEventListener('click', () => {
                 // 假设 video.video_path 包含视频的路径
-                window.location.href = `/video.html?name=${encodeURIComponent(video.video_path)}`;
+                window.location.href = `/video/${video.id}`;
             });
 
             // 插入到推荐列表中

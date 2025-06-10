@@ -25,7 +25,7 @@ $('#uploadForm').on('submit', function (event) {
                 }
             }, false);
             return xhr;
-        }, url: '/upload', // 后端上传端点
+        }, url: '/api/upload', // 后端上传端点
         type: 'POST', data: formData, contentType: false, // 不设置内容类型
         processData: false, // 不处理数据
         success: function (response) {

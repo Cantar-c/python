@@ -55,12 +55,14 @@ $(document).ready(function () {
 
     // 请求后端 API 获取视频数据
     $.ajax({
-        url: `/user_videos`, // 修改为新的后端视频数据接口
+        url: `/api/user_videos`, // 修改为新的后端视频数据接口
         method: 'GET',
         dataType: 'json',
         data: ajaxParams, // 传递搜索参数和用户参数
         success: function (data) {
             console.log('成功获取视频数据:', data);
+
+            data = data.data;
 
             // 检查数据是否为数组
             if (Array.isArray(data)) {
@@ -77,12 +79,12 @@ $(document).ready(function () {
                     // 创建封面图部分
                     var coverImageDiv = $('<div>', {class: 'cover_image'});
                     var image = $('<img>', {
-                        class: 'image', src: video.image, alt: video.video_name
+                        class: 'image', src: video.thumbnail, alt: video.title
                     }).on('error', function () {
-                        console.error(`图片加载失败: ${video.image}`);
-                        $(this).attr('src', '/video_images/default-image.png'); // 替换为默认图片路径
+                        console.error(`图片加载失败: ${video.thumbnail}`);
+                        $(this).attr('src', '/static/img/default-image.png'); // 替换为默认图片路径
                     });
-                    var videoTimeDiv = $('<div>', {class: 'video_time', text: video.video_time});
+                    var videoTimeDiv = $('<div>', {class: 'video_time', text: video.duration});
 
                     coverImageDiv.append(image).append(videoTimeDiv);
 
@@ -95,7 +97,7 @@ $(document).ready(function () {
                         class: 'uper_img', src: video.uper_img, alt: video.video_author_info
                     }).on('error', function () {
                         console.error(`作者头像加载失败: ${video.uper_img}`);
-                        $(this).attr('src', '/uper_img/default-avatar.png'); // 替换为默认头像路径
+                        $(this).attr('src', '/static/img/default-avatar.png'); // 替换为默认头像路径
                     });
                     uperDiv.append(uperImg);
 
@@ -127,9 +129,8 @@ $(document).ready(function () {
 
                     // 为每个视频容器添加点击事件
                     image.on('click', function () {
-                        var videoFilePath = video.video_path; // 获取视频文件路径
                         // 使用 window.open 在新标签页中打开视频
-                        window.open('/video.html?name=' + encodeURIComponent(videoFilePath), '_blank');
+                        window.open('/video' + video.id, '_blank');
                     });
                 });
 

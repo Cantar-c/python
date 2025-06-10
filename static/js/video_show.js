@@ -1,49 +1,36 @@
-// 获取 URL 中的视频名称
-const urlParams = new URLSearchParams(window.location.search);
-const videoName = urlParams.get('name');
+document.addEventListener('DOMContentLoaded', function () {
+    const videoPlayer = document.getElementById('video_player');
+    const videoTitle = document.getElementById('video_title');
+    const errorMessage = document.getElementById('error-message');
+    const recommendation = document.getElementById('recommendation');
 
-const videoPlayer = document.getElementById('video_player');
-const videoTitle = document.getElementById('video_title');
-const errorMessage = document.getElementById('error-message');
-const recommendation = document.getElementById('recommendation');
+    // 从隐藏 input 中获取 video_path
+    const videoPath = document.getElementById('video_path')?.value;
+    if (videoPath) {
+        const videoElement = document.createElement('video');
+        videoElement.setAttribute('controls', 'true');
+        videoElement.setAttribute('width', '100%');
+        videoElement.src = videoPath;
 
-if (videoName) {
-    // 从文件名中提取视频标题
-    const videoTitleText = decodeURIComponent(videoName.split('/').pop().replace(/\.mp4$/, '').replace(/_/g, ' '));
-    videoTitle.textContent = videoTitleText;
+        videoElement.onerror = () => {
+            videoPlayer.style.display = 'none';
+            errorMessage.style.display = 'block';
+            recommendation.style.display = 'none';
+            videoTitle.style.display = 'none';
+        };
 
-    // 检查视频是否存在
-    const videoPath = videoName; // 视频存储的路径
+        videoElement.oncanplay = () => {
+            videoPlayer.style.display = 'block';
+            errorMessage.style.display = 'none';
+            recommendation.style.display = 'block';
+            videoTitle.style.display = 'block';
+        };
 
-    const videoElement = document.createElement('video');
-    videoElement.setAttribute('controls', 'true');
-    videoElement.setAttribute('width', '100%');
-
-    // 尝试加载视频
-    videoElement.src = videoPath;
-
-    videoElement.onerror = () => {
-        // 如果视频加载失败，显示错误消息
+        videoPlayer.appendChild(videoElement);
+    } else {
         videoPlayer.style.display = 'none';
         errorMessage.style.display = 'block';
         recommendation.style.display = 'none';
         videoTitle.style.display = 'none';
-    };
-
-    // 视频开始加载时显示视频播放器，隐藏错误消息
-    videoElement.oncanplay = () => {
-        videoPlayer.style.display = 'block';
-        errorMessage.style.display = 'none';
-        recommendation.style.display = 'block';
-        videoTitle.style.display = 'block';
-    };
-
-    // 将视频播放器添加到容器中
-    videoPlayer.appendChild(videoElement);
-} else {
-    // 如果未提供视频名称，显示错误消息
-    videoPlayer.style.display = 'none';
-    errorMessage.style.display = 'block';
-    recommendation.style.display = 'none';
-    videoTitle.style.display = 'none';
-}
+    }
+});

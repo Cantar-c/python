@@ -5,18 +5,16 @@ form.addEventListener('submit', (e) => {
     e.preventDefault();
     messageDiv.textContent = ''; // 清空消息
 
-    const formData = new FormData(form);
-    const data = {
-        username: formData.get('username'), password: formData.get('password'), email: formData.get('email')
-    };
+    const formData = new FormData(form); // 自动收集表单数据
 
-    fetch('/register', {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+    fetch('/api/register', {
+        method: 'POST',
+        body: formData // 直接传 FormData，不要设置 Content-Type，浏览器会自动处理
     }).then(response => response.json())
         .then(result => {
-            if (result.error) {
+            if (result.code !== 200) {
                 messageDiv.style.color = '#ff6666';
-                messageDiv.textContent = '注册失败: ' + result.error;
+                messageDiv.textContent = '注册失败: ' + result.msg;
             } else {
                 messageDiv.style.color = '#66ff66';
                 messageDiv.textContent = '注册成功！即将跳转...';
@@ -25,7 +23,7 @@ form.addEventListener('submit', (e) => {
                 }, 1000);
             }
         }).catch(err => {
-        messageDiv.style.color = '#ff6666';
-        messageDiv.textContent = '请求失败，请稍后重试。';
-    });
+            messageDiv.style.color = '#ff6666';
+            messageDiv.textContent = '请求失败，请稍后重试。';
+        });
 });

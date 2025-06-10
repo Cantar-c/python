@@ -6,6 +6,7 @@ from botocore.client import Config
 S3_BUCKET = os.getenv("S3_BUCKET", "baiyuntube")
 S3_REGION = os.getenv("S3_REGION", "undefined")
 S3_ENDPOINT = os.getenv("S3_ENDPOINT", "https://undefined.cool")
+S3_URL = os.getenv("S3_URL", "https://baiyuntube.undefined.cool")
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY", "55bgtrBOSdEnpCC81EgR")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY", "hQgYV1UH6IrTVubuC2KNF1jvMaNm9P4KWecc5vaC")
 

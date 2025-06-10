@@ -1,7 +1,6 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-db = SQLAlchemy()
+from utils.extensions import db
 
 
 class User(db.Model):
@@ -27,8 +26,7 @@ class Video(db.Model):
     video_path = db.Column(db.String(255), nullable=False)  # 视频文件路径
     thumbnail = db.Column(db.String(255), nullable=True)  # 缩略图路径
     duration = db.Column(db.String(10), nullable=True)  # 视频时长，格式如 "02:46"
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)  # 上传时间
-    author_info = db.Column(db.String(255), nullable=True)  # 上传者昵称或说明
+    created_at = db.Column(db.DateTime, default=datetime.now)  # 上传时间
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)  # 上传者 ID
 
     def __repr__(self):

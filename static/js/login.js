@@ -9,33 +9,26 @@ form.addEventListener('submit', (e) => {
     e.preventDefault();
     messageDiv.textContent = ''; // 清空消息
 
-    const formData = new FormData(form);
-    const data = {
-        username: formData.get('username'), password: formData.get('password')
-    };
+    const formData = new FormData(form); // 直接构建表单数据
 
-    fetch('/login', {
-        method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)
+    fetch('/api/login', {
+        method: 'POST',
+        body: formData // 浏览器会自动设置 Content-Type
     })
         .then(response => response.json())
         .then(result => {
-            if (result.error) {
+            if (result.code !== 200) {
                 messageDiv.style.color = '#ff6666';
-                messageDiv.textContent = '登录失败: ' + result.error;
+                messageDiv.textContent = '登录失败: ' + result.msg;
             } else {
                 messageDiv.style.color = '#66ff66';
                 messageDiv.textContent = '登录成功！即将跳转...';
                 setTimeout(() => {
-                    if (redirectUrl) {
-                        const decodedRedirect = decodeURIComponent(redirectUrl);
-
-                        if (decodedRedirect.startsWith('/')) {
-                            window.location.href = decodedRedirect;
-                        } else {
-                            window.location.href = '/index.html';
-                        }
+                    const decodedRedirect = decodeURIComponent(redirectUrl || '/');
+                    if (decodedRedirect.startsWith('/')) {
+                        window.location.href = decodedRedirect;
                     } else {
-                        window.location.href = '/index.html';
+                        window.location.href = '/';
                     }
                 }, 1000);
             }
