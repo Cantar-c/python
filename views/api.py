@@ -26,7 +26,7 @@ def check_token(f):
 
 
 @api.route('/upload', methods=['POST'])
-# @check_token
+@check_token
 def upload():
     user_id = session.get('user', {}).get('id') or 1
 
@@ -116,7 +116,7 @@ def upload():
 
 # 获取用户视频
 @api.route('/user_videos', methods=['GET'])
-# @check_token
+@check_token
 def user_videos():
     user_id = session.get('user', {}).get('id') or 1
     videos = Video.query.filter_by(user_id=user_id).all()
@@ -140,13 +140,14 @@ def user_videos():
 @api.route('/user_info', methods=['GET'])
 @check_token
 def user_info():
-    user = session.get('user')
+    user = session.get('user').get('id')
     if not user:
         return error_response('未登录或登录已过期', 401)
+    user_infos = User.query.filter_by(id=user).first()
     return success_response({
-        'id': user.get('id'),
-        'username': user.get('username'),
-        'avatar': user.get('avatar')
+        'id': user_infos.id,
+        'username': user_infos.username,
+        'avatar': user_infos.avatar
     })
 
 

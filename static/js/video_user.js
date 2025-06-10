@@ -62,6 +62,10 @@ $(document).ready(function () {
         success: function (data) {
             console.log('成功获取视频数据:', data);
 
+            if (data.code === 401){
+                window.location.href = '/login';
+            }
+
             data = data.data;
 
             // 检查数据是否为数组
@@ -104,7 +108,7 @@ $(document).ready(function () {
                     // 视频详细信息
                     var videoInfoDiv = $('<div>', {class: 'video_info'});
                     var videoTitleP = $('<p>', {
-                        class: 'video_title_p', text: video.video_name
+                        class: 'video_title_p', text: video.title
                     });
                     var videoAuthorInfoP = $('<p>', {
                         class: 'video_author_info', text: video.video_author_info
@@ -130,7 +134,7 @@ $(document).ready(function () {
                     // 为每个视频容器添加点击事件
                     image.on('click', function () {
                         // 使用 window.open 在新标签页中打开视频
-                        window.open('/video' + video.id, '_blank');
+                        window.open('/video/' + video.id, '_blank');
                     });
                 });
 
@@ -144,11 +148,6 @@ $(document).ready(function () {
             }
             loading.style.display = 'none';
         },
-        error: function (jqXHR, textStatus, errorThrown) {
-            console.error('获取视频数据出错:', textStatus, errorThrown);
-            $('#videoGrid').append('<p>无法加载视频数据。</p>');
-            loading.style.display = 'none';
-        }
     });
 
 });
