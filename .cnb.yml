@@ -1,0 +1,7 @@
+$:
+  vscode:
+    - runner:
+        tags: cnb:arch:amd64:gpu
+      services:
+        - vscode
+        - docker
