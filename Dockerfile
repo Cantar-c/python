@@ -2,6 +2,16 @@ FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+RUN curl -fsSL https://code-server.dev/install.sh | sh \
+  && code-server --install-extension cnbcool.cnb-welcome \
+  && code-server --install-extension redhat.vscode-yaml \
+  && code-server --install-extension dbaeumer.vscode-eslint \
+  && code-server --install-extension waderyan.gitblame \
+  && code-server --install-extension mhutchie.git-graph \
+  && code-server --install-extension donjayamanne.githistory \
+  && code-server --install-extension tencent-cloud.coding-copilot \
+  && echo done
+
 # 安装依赖库（注意：删掉 libx265-dev）
 RUN apt-get update && apt-get install -y \
     build-essential \
