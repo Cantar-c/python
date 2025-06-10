@@ -18,10 +18,10 @@ $(document).ready(function () {
         let query = $('.search').val().trim();
         if (query) {
             // 更新 URL 并重新加载页面
-            window.location.href = '/index.html?search=' + encodeURIComponent(query);
+            window.location.href = '/?search=' + encodeURIComponent(query);
         } else {
             // 如果搜索框为空，移除搜索参数并重新加载
-            window.location.href = '/index.html';
+            window.location.href = '/';
         }
     });
 

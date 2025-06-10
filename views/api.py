@@ -199,7 +199,11 @@ def register():
 # 获取视频列表
 @api.route('/videos', methods=['GET'])
 def videos():
-    videos = Video.query.all()
+    search = request.args.get('search', '').strip()
+    if search:
+        videos = Video.query.filter(Video.title.contains(search)).all()
+    else:
+        videos = Video.query.all()
     if not videos:
         return success_response([])
 
