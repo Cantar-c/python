@@ -1,6 +1,8 @@
 $:
   vscode:
-    - runner:
+    - docker:
+        image: docker.cnb.cool/loextech/project/baiyuntube/runner
+      runner:
         tags: cnb:arch:amd64:gpu
       services:
         - vscode
