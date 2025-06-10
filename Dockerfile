@@ -2,7 +2,10 @@ FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安装依赖库（注意：删掉 libx265-dev）
+RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|https://mirrors.cloud.tencent.com/ubuntu/|g' /etc/apt/sources.list && \
+    sed -i 's|http://security.ubuntu.com/ubuntu|https://mirrors.cloud.tencent.com/ubuntu|g' /etc/apt/sources.list
+
+# 安装依赖库
 RUN apt-get update && apt-get install -y \
     build-essential \
     git \
