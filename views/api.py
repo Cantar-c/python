@@ -9,6 +9,7 @@ from flask import Blueprint, request, session
 
 from utils.bucket import s3, S3_BUCKET, S3_URL
 from utils.extensions import db, time_ago
+from utils.ffmpeg import try_encode_with_gpu, encode_fallback
 from utils.models import Video, User
 from utils.response import error_response, success_response
 
@@ -57,14 +58,8 @@ def upload():
         with tempfile.NamedTemporaryFile(delete=False, suffix='.mp4') as trans_video:
             trans_video_path = trans_video.name
 
-        # 转码为 720P + 16:9 + 黑边填充
-        subprocess.run([
-            'ffmpeg', '-i', orig_video_path,
-            '-vf', 'scale=w=1280:h=720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2',
-            '-c:v', 'libx264', '-preset', 'fast', '-crf', '23',
-            '-c:a', 'aac', '-b:a', '128k',
-            '-y', trans_video_path
-        ], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+        if not try_encode_with_gpu(orig_video_path, trans_video_path):
+            encode_fallback(orig_video_path, trans_video_path)
 
         # 生成缩略图
         with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as temp_img:
