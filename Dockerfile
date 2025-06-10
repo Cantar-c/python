@@ -70,6 +70,9 @@ RUN git clone --depth=1 https://github.com/FFmpeg/FFmpeg.git ffmpeg && \
       --enable-libfdk-aac \
       --enable-nvenc \
       --enable-cuvid \
+      --enable-cuda \
+      --enable-cuda-nvcc \
+      --enable-libnpp \
       --enable-openssl && \
     make -j$(nproc) && \
     make install && \
