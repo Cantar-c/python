@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}视频管理{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>视频管理</h2>
+
+    <!-- 添加视频 -->
+    <form id="add-video-form" style="margin-bottom: 20px;">
+        <input type="text" id="title" placeholder="标题" required>
+        <input type="text" id="video_path" placeholder="视频URL" required>
+        <input type="text" id="thumbnail" placeholder="缩略图URL">
+        <input type="text" id="duration" placeholder="时长（秒）">
+        <input type="number" id="user_id" placeholder="上传者ID" required>
+        <button type="submit">添加视频</button>
+    </form>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>标题</th>
+                <th>视频</th>
+                <th>缩略图</th>
+                <th>时长</th>
+                <th>上传时间</th>
+                <th>上传者</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="video-table-body"></tbody>
+    </table>
+</div>
+
+<script>
+async function loadVideos() {
+    const res = await fetch('/api/video');
+    const json = await res.json();
+    const videos = json.data || [];
+    const tbody = document.getElementById('video-table-body');
+    tbody.innerHTML = '';
+
+    videos.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${v.id}</td>
+            <td contenteditable="true" onblur="updateVideo(${v.id}, this.innerText, 'title')">${v.title}</td>
+            <td><a href="${v.video_path}" target="_blank">播放</a></td>
+            <td><img src="${v.thumbnail}" style="height:40px;"></td>
+            <td contenteditable="true" onblur="updateVideo(${v.id}, this.innerText, 'duration')">${v.duration}</td>
+            <td>${v.created_at}</td>
+            <td>${v.user_id}</td>
+            <td><button onclick="deleteVideo(${v.id})">删除</button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function deleteVideo(id) {
+    await fetch(`/api/video/${id}`, { method: 'DELETE' });
+    loadVideos();
+}
+
+async function updateVideo(id, value, field) {
+    const res = await fetch(`/api/video/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value })
+    });
+    const json = await res.json();
+    if (json.code !== 200) alert('更新失败');
+}
+
+document.getElementById('add-video-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = {
+        title: document.getElementById('title').value,
+        video_path: document.getElementById('video_path').value,
+        thumbnail: document.getElementById('thumbnail').value,
+        duration: document.getElementById('duration').value,
+        user_id: parseInt(document.getElementById('user_id').value)
+    };
+
+    const res = await fetch('/api/video', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+
+    const json = await res.json();
+    if (json.code === 200) {
+        e.target.reset();
+        loadVideos();
+    } else {
+        alert('添加失败');
+    }
+});
+
+window.onload = loadVideos;
+</script>
+{% endblock %}

@@ -8,7 +8,7 @@ from urllib.parse import unquote
 from flask import Blueprint, request, session
 
 from utils.bucket import s3, S3_BUCKET, S3_URL
-from utils.extensions import db, time_ago
+from utils.extensions import db, time_ago, check_token
 from utils.ffmpeg import try_encode_with_gpu, encode_fallback
 from utils.models import Video, User
 from utils.response import error_response, success_response
@@ -16,20 +16,10 @@ from utils.response import error_response, success_response
 api = Blueprint('api', __name__)
 
 
-def check_token(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user' not in session:
-            return error_response('未登录或登录已过期', 401)
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
 @api.route('/upload', methods=['POST'])
 @check_token
 def upload():
-    user_id = session.get('user', {}).get('id') or 1
+    user_id = session.get('user', {}).get('id')
 
     if 'video' not in request.files:
         return error_response('没有文件上传', 400)
@@ -113,7 +103,7 @@ def upload():
 @api.route('/user_videos', methods=['GET'])
 @check_token
 def user_videos():
-    user_id = session.get('user', {}).get('id') or 1
+    user_id = session.get('user', {}).get('id')
     videos = Video.query.filter_by(user_id=user_id).all()
     if not videos:
         return success_response([])
@@ -136,7 +126,7 @@ def user_videos():
 @check_token
 def user_info():
     user = session.get('user').get('id')
-    if not user:
+    if user is None:
         return error_response('未登录或登录已过期', 401)
     user_infos = User.query.filter_by(id=user).first()
     return success_response({
@@ -215,3 +205,90 @@ def videos():
     } for video in videos]
 
     return success_response(video_list)
+
+
+# ------------------- User APIs -------------------
+@api.route('/user', methods=['GET'])
+def list_users():
+    users = User.query.all()
+    return success_response([{
+        'id': u.id,
+        'username': u.username,
+        'avatar': u.avatar
+    } for u in users])
+
+
+@api.route('/user', methods=['POST'])
+def create_user():
+    data = request.json
+    user = User(username=data['username'], password=data['password'], avatar=data.get('avatar'))
+    db.session.add(user)
+    db.session.commit()
+    return success_response()
+
+
+@api.route('/user/<int:user_id>', methods=['PUT'])
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    data = request.json
+    user.username = data.get('username', user.username)
+    user.avatar = data.get('avatar', user.avatar)
+    db.session.commit()
+    return success_response()
+
+
+@api.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    db.session.delete(user)
+    db.session.commit()
+    return success_response()
+
+
+# ------------------- Video APIs -------------------
+@api.route('/video', methods=['GET'])
+def list_videos():
+    videos = Video.query.all()
+    return success_response([{
+        'id': v.id,
+        'title': v.title,
+        'video_path': v.video_path,
+        'thumbnail': v.thumbnail,
+        'duration': v.duration,
+        'created_at': v.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'user_id': v.user_id
+    } for v in videos])
+
+
+@api.route('/video', methods=['POST'])
+def create_video():
+    data = request.json
+    video = Video(
+        title=data['title'],
+        video_path=data['video_path'],
+        thumbnail=data.get('thumbnail'),
+        duration=data.get('duration'),
+        user_id=data['user_id']
+    )
+    db.session.add(video)
+    db.session.commit()
+    return success_response()
+
+
+@api.route('/video/<int:video_id>', methods=['PUT'])
+def update_video(video_id):
+    video = Video.query.get_or_404(video_id)
+    data = request.json
+    video.title = data.get('title', video.title)
+    video.thumbnail = data.get('thumbnail', video.thumbnail)
+    video.duration = data.get('duration', video.duration)
+    db.session.commit()
+    return success_response()
+
+
+@api.route('/video/<int:video_id>', methods=['DELETE'])
+def delete_video(video_id):
+    video = Video.query.get_or_404(video_id)
+    db.session.delete(video)
+    db.session.commit()
+    return success_response()

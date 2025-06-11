@@ -1,6 +1,10 @@
 from datetime import datetime
+from functools import wraps
 
+from flask import session, url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
+
+from utils.response import error_response
 
 db = SQLAlchemy()
 
@@ -23,3 +27,33 @@ def time_ago(dt):
         return f"{days}天前"
     else:
         return dt.strftime('%Y-%m-%d')
+
+
+def check_token(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return error_response('未登录或登录已过期', 401)
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def check_page(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session:
+            return redirect(url_for('page.login'))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def check_admin(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user' not in session or session.get('user').get('id') != 0:
+            return redirect(url_for('page.no_permission'))
+        return f(*args, **kwargs)
+
+    return decorated_function

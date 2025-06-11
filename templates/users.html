@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}用户管理{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>用户管理</h2>
+
+    <!-- 添加用户表单 -->
+    <form id="add-user-form" style="margin-bottom: 20px;">
+        <input type="text" id="username" placeholder="用户名" required>
+        <input type="text" id="avatar" placeholder="头像URL（可选）">
+        <input type="password" id="password" placeholder="密码" required>
+        <button type="submit">添加用户</button>
+    </form>
+
+    <!-- 用户表格 -->
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>用户名</th>
+                <th>头像</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody id="user-table-body"></tbody>
+    </table>
+</div>
+
+<script>
+async function loadUsers() {
+    const res = await fetch('/api/user');
+    const json = await res.json();
+    const users = json.data || [];
+    const tbody = document.getElementById('user-table-body');
+    tbody.innerHTML = '';
+
+    users.forEach(u => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${u.id}</td>
+            <td contenteditable="true" onblur="updateUser(${u.id}, this.innerText, 'username')">${u.username}</td>
+            <td>
+                ${u.avatar ? `<img src="${u.avatar}" style="height:30px;border-radius:50%;">` : ''}
+                <br><input value="${u.avatar || ''}" onchange="updateUser(${u.id}, this.value, 'avatar')">
+            </td>
+            <td>
+                <button onclick="deleteUser(${u.id})">删除</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function deleteUser(id) {
+    await fetch(`/api/user/${id}`, { method: 'DELETE' });
+    loadUsers();
+}
+
+async function updateUser(id, value, field) {
+    const res = await fetch(`/api/user/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [field]: value })
+    });
+    const json = await res.json();
+    if (json.code !== 200) alert('更新失败');
+}
+
+document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const avatar = document.getElementById('avatar').value;
+    const password = document.getElementById('password').value;
+
+    const res = await fetch('/api/user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, avatar, password })
+    });
+
+    const json = await res.json();
+    if (json.code === 200) {
+        e.target.reset();
+        loadUsers();
+    } else {
+        alert('添加失败');
+    }
+});
+
+window.onload = loadUsers;
+</script>
+{% endblock %}

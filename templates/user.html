@@ -8,43 +8,50 @@
 {% endblock %}
 
 {% block content %}
-<div id="user_info">
-
-</div>
+<div id="user_info" style="text-align: center; margin-top: 20px;"></div>
 
 <div style="display: flex; justify-content: center; align-items: center;margin-top: 50px;">
-    <img id='loading' class="video" src="/static/img/loading.gif" alt="video" style="max-width: 100%; max-height: 100%;">
+    <img id="loading" class="video" src="/static/img/loading.gif" alt="loading" style="max-width: 100%; max-height: 100%;">
 </div>
-<section class="video_grid" id="videoGrid">
-</section>
+
+<section class="video_grid" id="videoGrid"></section>
 {% endblock %}
 
 {% block foot %}
 <script>
     $(document).ready(function () {
-        // 请求用户信息
         $.ajax({
-            url: '/api/user_info', // 假设这是后端提供的用户信息接口
+            url: '/api/user_info',
             method: 'GET',
             dataType: 'json',
-            success: function (data) {
-                if (data && data.data) {
-                    var user = data.data;
-                    // 动态生成用户信息 HTML 结构
-                    var userHtml = `
-                    <div class="user_info_card" style="text-align: center; margin-top: 20px;">
-                        <img src="${user.avatar}" alt="用户头像" style="width:100px;height:100px;border-radius:50%;margin-bottom:10px;">
-                        <h2 id="user_name" style="color: #808080;">${user.username}</h2>
-                    </div>
-                `;
-                    // 将用户信息插入到 <main> 中
+            success: function (res) {
+                if (res && res.code === 200 && res.data) {
+                    const user = res.data;
+
+                    let adminLinks = '';
+                    if (user.id === 0) {
+                        adminLinks = `
+                            <div style="margin-top: 20px;">
+                                <a href="/users" style="margin-right: 20px; color: #3498db; text-decoration: none;">用户管理</a>
+                                <a href="/videos" style="color: #3498db; text-decoration: none;">视频管理</a>
+                            </div>
+                        `;
+                    }
+
+                    const userHtml = `
+                        <div class="user_info_card" style="text-align: center;">
+                            <img src="${user.avatar}" alt="用户头像" style="width:100px;height:100px;border-radius:50%;margin-bottom:10px;">
+                            <h2 id="user_name" style="color: #808080;">${user.username}</h2>
+                            ${adminLinks}
+                        </div>
+                    `;
                     $('#user_info').html(userHtml);
                 } else {
-                    console.warn('未获取到用户信息');
+                    $('#user_info').html('<p style="color: #999;">无法获取用户信息</p>');
                 }
             },
-            error: function (err) {
-                console.error("获取用户信息时发生错误:", err);
+            error: function () {
+                $('#user_info').html('<p style="color: red;">请求用户信息失败</p>');
             }
         });
     });
