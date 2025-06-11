@@ -90,24 +90,24 @@ BaiyunTube/
 
 ### User 表
 
-| 字段名      | 类型      | 描述        |
-| -------- | ------- | --------- |
-| id       | Integer | 主键        |
-| username | String  | 用户名，唯一    |
-| password | String  | 密码（加密）    |
-| avatar   | String  | 头像 URL，可空 |
+| 字段名      | 类型      | 长度  | 是否为空 | 键   | 说明         |
+| -------- | ------- | --- | ---- | --- | ---------- |
+| id       | Integer | -   | 否    | 主键  | 用户ID       |
+| username | String  | 50  | 否    | 唯一键 | 用户名（唯一）    |
+| password | String  | 128 | 否    | 否   | 密码（加密存储）   |
+| avatar   | String  | 255 | 是    | 否   | 头像 URL（可空） |
 
 ### Video 表
 
-| 字段名         | 类型       | 描述              |
-| ----------- | -------- | --------------- |
-| id          | Integer  | 主键              |
-| title       | String   | 视频标题            |
-| video\_path | String   | 视频文件路径          |
-| thumbnail   | String   | 视频缩略图路径         |
-| duration    | String   | 视频时长（s）         |
-| created\_at | DateTime | 上传时间            |
-| user\_id    | Integer  | 外键，关联用户         |
+| 字段名         | 类型       | 长度  | 是否为空 | 键  | 说明         |
+| ----------- | -------- | --- | ---- | -- | ---------- |
+| id          | Integer  | -   | 否    | 主键 | 视频ID       |
+| title       | String   | 255 | 否    | 否  | 视频标题       |
+| video\_path | String   | 255 | 否    | 否  | 视频文件路径     |
+| thumbnail   | String   | 255 | 是    | 否  | 视频缩略图路径    |
+| duration    | String   | 10  | 是    | 否  | 视频时长（单位：s） |
+| created\_at | DateTime | -   | 是    | 否  | 上传时间       |
+| user\_id    | Integer  | -   | 否    | 外键 | 关联用户ID     |
 
 ---
 
