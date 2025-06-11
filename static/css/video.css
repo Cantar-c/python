@@ -222,3 +222,48 @@ video {
     font-size: 12px;
     color: gray;
 }
+
+/* 默认：大屏幕 - 使用横向排列（已存在） */
+#video_container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+/* 小屏幕：< 950px 时，视频上下排列，推荐在下方 */
+@media (max-width: 950px) {
+    #video_container {
+        flex-direction: column;
+    }
+
+    #main_video {
+        width: 100%;
+    }
+
+    #recommendation {
+        width: 100%;
+        margin-top: 30px;
+        height: auto;
+        max-height: 400px;
+    }
+}
+
+/* 中屏：950 ~ 1249px，视频占 65%，推荐占 35% */
+@media (min-width: 951px) and (max-width: 1249px) {
+    #main_video {
+        width: 65%;
+    }
+
+    #recommendation {
+        width: 33%;
+        height: auto;
+        margin-top: 20px;
+    }
+}
+
+video {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
