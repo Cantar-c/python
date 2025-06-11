@@ -170,7 +170,7 @@ def register():
         return error_response('用户名或密码不能为空', 400)
     if User.query.filter_by(username=username).first():
         return error_response('用户名已存在', 400)
-    new_user = User(username=username, password=password)
+    new_user = User(username=username, password=password, avatar='/static/img/default-avatar.png')
     db.session.add(new_user)
     db.session.commit()
     session['user'] = {
