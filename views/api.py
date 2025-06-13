@@ -239,6 +239,10 @@ def update_user(user_id):
 
 @api.route('/user/<int:user_id>', methods=['DELETE'])
 def delete_user(user_id):
+    videos = Video.query.filter_by(user_id=user_id).all()
+    for video in videos:
+        db.session.delete(video)
+        db.session.commit()
     user = User.query.get_or_404(user_id)
     db.session.delete(user)
     db.session.commit()
