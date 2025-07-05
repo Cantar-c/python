@@ -1,0 +1,15 @@
+<h2>添加商品</h2>
+
+{% if error %}
+  <p style="color:red;">{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+    <label>商品名称：</label><input type="text" name="name"><br>
+    <label>价格：</label><input type="number" name="price" step="0.01"><br>
+    <label>库存：</label><input type="number" name="stock"><br>
+    <label>描述：</label><br>
+    <textarea name="description"></textarea><br>
+    <button type="submit">提交</button>
+</form>
