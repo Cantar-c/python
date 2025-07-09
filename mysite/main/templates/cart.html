@@ -1,0 +1,24 @@
+<h2>购物车</h2>
+<table>
+  <tr>
+    <th>商品</th><th>单价</th><th>数量</th><th>小计</th>
+  </tr>
+  {% for item in cart_items %}
+  <tr>
+    <td>{{ item.product.name }}</td>
+    <td>{{ item.product.price }}</td>
+    <td>{{ item.quantity }}</td>
+    <td>{{ item.subtotal }}</td>
+    <td>
+        <a href="{% url 'update_cart' item.product.id 'add' %}">+</a>
+        {{ item.quantity }}
+        <a href="{% url 'update_cart' item.product.id 'remove' %}">-</a>
+        <a href="{% url 'update_cart' item.product.id 'delete' %}">删除</a>
+    </td>
+  </tr>
+  {% endfor %}
+
+</table>
+<p>总计：¥{{ total }}</p>
+
+<a href="{% url 'product_list' %}">返回继续购物</a>

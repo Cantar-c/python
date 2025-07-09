@@ -1,10 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib import messages
-from .models import Product
+from .models import Product, Order, OrderItem
 from django.contrib.auth import authenticate, logout,login
 
 
@@ -63,11 +63,14 @@ def logout_view(request):
 #添加商品
 @login_required
 def add_product(request):
+    if not request.user.is_staff:
+        return HttpResponse("你没有权限访问", status=403)
     if request.method == 'POST':
         name = request.POST['name']
         price = request.POST['price']
         stock = request.POST['stock']
         description = request.POST['description']
+        image = request.FILES.get('image')
 
         #校验
         if not name or not price or not stock:
@@ -79,9 +82,86 @@ def add_product(request):
             name=name,
             price=price,
             stock=stock,
-            description=description
+            description=description,
+            image=image
             )
         )
         return redirect('product_list')
 
     return render(request,'add_product.html')
+
+#添加商品详情视图
+def product_detail(request, product_id):
+    if not request.user.is_staff:
+        return HttpResponse("你没有权限访问", status=403)
+    product = get_object_or_404(Product, id=product_id)
+    return render(request,'product_detail.html', {'product': product})
+
+#购物车结构（基于session）
+def add_to_cart(request, product_id):
+    cart = request.session.get('cart', {})
+    cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    request.session['cart'] = cart
+    return redirect('cart')
+
+#购物车视图和模板
+@login_required
+def cart_view(request):
+    cart =request.session.get('cart', {})
+    cart_items = cart.values()
+    total = 0
+
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=product_id)
+        subtotal = product.price * quantity
+        cart_items.append({'product': product, 'quantity': quantity, 'subtotal': subtotal})
+        total += subtotal
+
+    return render(request, 'cart.html', {'cart_items': cart_items, 'total': total})
+
+#修改购物车
+def update_cart(request, product_id, action):
+    cart = request.session.get('cart', {})
+
+    if action == 'add':
+        cart[str(product_id)] = cart.get(str(product_id), 0) + 1
+    elif action == 'remove':
+        if str(product_id) in cart:
+            cart[str(product_id)] -= 1
+            if cart[str(product_id)] <= 0:
+                del cart[str(product_id)]
+    elif action == 'delete':
+        cart.pop(str(product_id), None)
+
+    request.session['cart'] = cart
+    return redirect('cart')
+
+#提交订单
+
+@login_required
+def submit_order(request):
+    cart = request.session.get('cart', {})
+    if not cart:
+        return redirect('cart')
+
+    order = Order.objects.create(user=request.user)
+    for product_id, quantity in cart.items():
+        product = get_object_or_404(Product, id=product_id)
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=quantity,
+            price=product.price
+        )
+    request.session['cart'] = {}
+    return render(request, 'order_success.html', {'order': order})
+#用户中心
+@login_required
+def profile(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'profile.html', {'orders': orders})
+
+
+
+
+

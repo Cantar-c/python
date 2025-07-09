@@ -1,0 +1,7 @@
+<h2>{{ product.name }}</h2>
+<img src="{{ product.image.url }}" width="300">
+<p>{{ product.description }}</p>
+<p>价格：¥{{ product.price }}</p>
+
+<a href="{% url 'add_to_cart' product.id %}">加入购物车</a>
+<a href="{% url 'product_list' %}">返回商品列表</a>

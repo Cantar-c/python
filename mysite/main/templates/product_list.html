@@ -28,6 +28,9 @@
         {% for p in page_obj %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm">
+                    {% if p.image %}
+                        <img src="{{ p.image.url }}" class="card-img-top" alt="商品图片" style="height:200px; object-fit:cover;">
+                    {% endif %}
                     <div class="card-body">
                         <h5 class="card-title">{{ p.name }}</h5>
                         <h6 class="card-subtitle mb-2 text-muted">￥{{ p.price }}</h6>
